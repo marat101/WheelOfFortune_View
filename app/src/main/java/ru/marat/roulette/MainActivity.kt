@@ -17,5 +17,9 @@ class MainActivity : AppCompatActivity() {
             Item(name = "aaa", 22, Color.BLUE),
             Item(name = "aaa", 22, Color.YELLOW)
         )
+        view.setOnClickListener {
+            if (!view.animation.isRunning)
+                view.animation.start()
+        }
     }
 }
