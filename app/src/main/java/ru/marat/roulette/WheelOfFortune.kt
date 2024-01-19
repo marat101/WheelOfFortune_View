@@ -1,13 +1,15 @@
 package ru.marat.roulette
 
-import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
+import androidx.annotation.ColorInt
+import androidx.core.graphics.withSave
 import androidx.dynamicanimation.animation.FloatValueHolder
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
@@ -33,16 +35,22 @@ class WheelOfFortune @JvmOverloads constructor(
         stiffness = 15f
     }
     private val animatedValue = FloatValueHolder(0f)
+
+    @ColorInt
+    private var currentColor = Color.TRANSPARENT
+    private var spinCount = 0
     val animation = SpringAnimation(animatedValue).apply {
         spring = springForce
         setMinimumVisibleChange(0.2f)
         addUpdateListener { animation, value, _ ->
-            println("TAGTAG ${value}")
+            val rotation = (value.toDouble() - (spinCount * 360.0)).coerceAtLeast(.0)
+            println("TAGTAG $spinCount $value")
+            currentColor = rotation.toFloat().getColor()
             invalidate()
         }
         addEndListener { _, _, _, _ ->
-//            animatedValue.value = 0f
             springForce.finalPosition = springForce.finalPosition + (0..(360 * 15)).random()
+            spinCount = (springForce.finalPosition / 360.0).toInt()
         }
     }
 
@@ -51,7 +59,7 @@ class WheelOfFortune @JvmOverloads constructor(
             totalValue = .0
             value.forEach { totalValue += it.value }
             field = value
-            requestLayout() //fixme
+            requestLayout()
         }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -65,15 +73,50 @@ class WheelOfFortune @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas.rotate(animatedValue.value, wheelCanvas!!.width / 2f, wheelCanvas!!.width / 2f)
-        wheelBitmap?.let { canvas.drawBitmap(it, 0f, 0f, paint) }
+        canvas.withSave {
+            rotate(animatedValue.value, wheelCanvas!!.width / 2f, wheelCanvas!!.width / 2f)
+            wheelBitmap?.let { drawBitmap(it, 0f, 0f, paint) }
+        }
+        canvas.drawPointer()
+
+    }
+
+    private fun Canvas.drawPointer() {
+        drawLine(
+            wheelCanvas!!.width / 2f,
+            0f,
+            wheelCanvas!!.width / 2f,
+            100f,
+            arcPaint.apply {
+                color = Color.CYAN
+                strokeWidth = 20f
+            })
+        drawLine(
+            wheelCanvas!!.width / 2f,
+            0f,
+            wheelCanvas!!.width / 2f,
+            95f,
+            arcPaint.apply {
+                color = currentColor
+                strokeWidth = 10f
+            })
+    }
+
+    private fun Float.getColor(): Int { //fixme delete
+        var startAngle = 0f
+        items.forEach {
+            val sweepAngle = it.value.toSweepAngle()
+            if (this in startAngle..(startAngle + sweepAngle)) return it.color
+            startAngle += sweepAngle
+        }
+        return Color.TRANSPARENT
     }
 
     private fun drawWheel(canvas: Canvas) = canvas.run {
-        var sweepAngle = items.first().value.toSweepAngle()
-        var startAngle = -(sweepAngle / 2f)
-        items.forEachIndexed { index, it ->
-            sweepAngle = it.value.toSweepAngle()
+//        canvas.rotate(-90f, canvas.width / 2f, canvas.width / 2f)
+        var startAngle = 0f
+        items.forEach {
+            val sweepAngle = it.value.toSweepAngle()
             drawArc(
                 RectF(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat()),
                 startAngle,
@@ -85,7 +128,7 @@ class WheelOfFortune @JvmOverloads constructor(
         }
     }
 
-    private fun Double.toSweepAngle(reversed: Boolean = true): Float {
+    private fun Double.toSweepAngle(reversed: Boolean = false): Float {
         val sweep = (this / totalValue) * 360.0
         return (if (reversed) -sweep else sweep).toFloat()
     }
