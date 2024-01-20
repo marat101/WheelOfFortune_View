@@ -30,7 +30,7 @@ class WheelOfFortune @JvmOverloads constructor(
     private var wheelBitmap: Bitmap? = null
     private var wheelCanvas: Canvas? = null
 
-    private val springForce = SpringForce(360f).apply {
+    private val springForce = SpringForce(166f).apply {
         dampingRatio = SpringForce.DAMPING_RATIO_NO_BOUNCY
         stiffness = 15f
     }
@@ -41,16 +41,15 @@ class WheelOfFortune @JvmOverloads constructor(
     private var spinCount = 0
     val animation = SpringAnimation(animatedValue).apply {
         spring = springForce
-        setMinimumVisibleChange(0.2f)
+        minimumVisibleChange = 0.2f
         addUpdateListener { animation, value, _ ->
-            val rotation = (value.toDouble() - (spinCount * 360.0)).coerceAtLeast(.0)
-            println("TAGTAG $spinCount $value")
-            currentColor = rotation.toFloat().getColor()
+
+            currentColor = value.toFloat().getColor()
             invalidate()
         }
         addEndListener { _, _, _, _ ->
             springForce.finalPosition = springForce.finalPosition + (0..(360 * 15)).random()
-            spinCount = (springForce.finalPosition / 360.0).toInt()
+//            spinCount = (springForce.finalPosition / 360.0).toInt()
         }
     }
 
@@ -113,10 +112,10 @@ class WheelOfFortune @JvmOverloads constructor(
     }
 
     private fun drawWheel(canvas: Canvas) = canvas.run {
-//        canvas.rotate(-90f, canvas.width / 2f, canvas.width / 2f)
+        canvas.rotate(90f, canvas.width / 2f, canvas.width / 2f)
         var startAngle = 0f
         items.forEach {
-            val sweepAngle = it.value.toSweepAngle()
+            val sweepAngle = it.value.toSweepAngle(true)
             drawArc(
                 RectF(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat()),
                 startAngle,
