@@ -16,23 +16,27 @@ import androidx.dynamicanimation.animation.SpringForce
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import java.lang.Integer.max
+import kotlin.random.Random
 
 class WheelOfFortune @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
 ) : View(context, attrs) {
 
-    val paint = Paint()
-    val arcPaint = Paint()
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val arcPaint = Paint().apply {
+        style = Paint.Style.FILL
+        isAntiAlias = true
+    }
 
-    private var totalValue = .0
+    private var totalValue = 0L
     private val scope = CoroutineScope(Dispatchers.Main)
     private var wheelBitmap: Bitmap? = null
     private var wheelCanvas: Canvas? = null
 
     private val springForce = SpringForce(166f).apply {
         dampingRatio = SpringForce.DAMPING_RATIO_NO_BOUNCY
-        stiffness = 15f
+        stiffness = 10f
     }
     private val animatedValue = FloatValueHolder(0f)
 
@@ -41,21 +45,21 @@ class WheelOfFortune @JvmOverloads constructor(
     private var spinCount = 0
     val animation = SpringAnimation(animatedValue).apply {
         spring = springForce
-        minimumVisibleChange = 0.2f
+        minimumVisibleChange = 0.05f
         addUpdateListener { animation, value, _ ->
-
-            currentColor = value.toFloat().getColor()
+            println("TAGTGA $value")
+            currentColor = (value - (360f * spinCount)).getColor()
             invalidate()
         }
         addEndListener { _, _, _, _ ->
             springForce.finalPosition = springForce.finalPosition + (0..(360 * 15)).random()
-//            spinCount = (springForce.finalPosition / 360.0).toInt()
+            spinCount = (springForce.finalPosition / 360.0).toInt()
         }
     }
 
     var items: List<Item> = listOf()
         set(value) {
-            totalValue = .0
+            totalValue = 0L
             value.forEach { totalValue += it.value }
             field = value
             requestLayout()
@@ -89,6 +93,7 @@ class WheelOfFortune @JvmOverloads constructor(
             arcPaint.apply {
                 color = Color.CYAN
                 strokeWidth = 20f
+                style = Paint.Style.FILL
             })
         drawLine(
             wheelCanvas!!.width / 2f,
@@ -98,6 +103,7 @@ class WheelOfFortune @JvmOverloads constructor(
             arcPaint.apply {
                 color = currentColor
                 strokeWidth = 10f
+                style = Paint.Style.FILL
             })
     }
 
@@ -112,23 +118,38 @@ class WheelOfFortune @JvmOverloads constructor(
     }
 
     private fun drawWheel(canvas: Canvas) = canvas.run {
-        canvas.rotate(90f, canvas.width / 2f, canvas.width / 2f)
+        canvas.rotate(-90f, canvas.width / 2f, canvas.width / 2f)
+        canvas.scale(1f,-1f, canvas.width / 2f,canvas.width / 2f)
         var startAngle = 0f
         items.forEach {
-            val sweepAngle = it.value.toSweepAngle(true)
+            val sweepAngle = it.value.toSweepAngle()
             drawArc(
                 RectF(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat()),
                 startAngle,
                 sweepAngle,
                 true,
-                arcPaint.apply { color = it.color }
+                arcPaint.apply {
+                    color = it.color
+                    style = Paint.Style.FILL
+                }
+            )
+            drawArc(
+                RectF(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat()),
+                startAngle,
+                sweepAngle,
+                true,
+                arcPaint.apply {
+                    color = Color.BLACK
+                    strokeWidth = 3f
+                    style = Paint.Style.STROKE
+                }
             )
             startAngle += sweepAngle
         }
     }
 
-    private fun Double.toSweepAngle(reversed: Boolean = false): Float {
-        val sweep = (this / totalValue) * 360.0
+    private fun Long.toSweepAngle(reversed: Boolean = false): Float {
+        val sweep = (this.toDouble() / totalValue.toDouble()) * 360.0
         return (if (reversed) -sweep else sweep).toFloat()
     }
 }
