@@ -16,6 +16,7 @@ import androidx.dynamicanimation.animation.SpringForce
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import java.lang.Integer.max
+import kotlin.math.min
 
 class WheelOfFortuneView @JvmOverloads constructor(
     context: Context,
@@ -23,7 +24,7 @@ class WheelOfFortuneView @JvmOverloads constructor(
 ) : View(context, attrs) {
 
     private val paint = Paint().apply {
-        isAntiAlias = true
+        isAntiAlias = false
     }
     private val pointerPaint = Paint()
 
@@ -43,7 +44,7 @@ class WheelOfFortuneView @JvmOverloads constructor(
     val animation = SpringAnimation(animatedValue).apply {
         spring = springForce
         minimumVisibleChange = 0.05f
-        addUpdateListener { animation, value, _ ->
+        addUpdateListener { _, value, _ ->
             println("TAGTGA $value")
             invalidate()
         }
@@ -59,12 +60,13 @@ class WheelOfFortuneView @JvmOverloads constructor(
         set(value) {
             field = value
             wheel.items = value
+            invalidate()
         }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         if (items.isEmpty()) return
-        val maxValue = max(w, h)
+        val maxValue = min(w, h) // max(w, h)
         wheel.prepareBitmap(maxValue)
     }
 

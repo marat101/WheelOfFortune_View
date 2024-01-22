@@ -1,23 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-    <ru.marat.roulette.WheelOfFortuneView
-        android:id="@+id/wheel"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="430dp"/>
+        android:layout_height="wrap_content"
+        android:gravity="top"
+        android:padding="16dp"
+        android:orientation="vertical">
 
-</FrameLayout>
+        <ru.marat.roulette.WheelOfFortuneView
+            android:id="@+id/wheel"
+            android:layout_width="match_parent"
+            android:layout_height="430dp" />
+
+        <EditText
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="name" />
+
+        <EditText
+            android:id="@+id/value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="value"
+            android:inputType="number" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/red"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="R"
+                android:inputType="number" />
+
+            <EditText
+                android:id="@+id/green"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="G"
+                android:inputType="number" />
+
+            <EditText
+                android:id="@+id/blue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="B"
+                android:inputType="number" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/random"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:text="Random color" />
+
+        <Button
+            android:id="@+id/add"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:text="ADD" />
+    </LinearLayout>
+</ScrollView>

@@ -7,6 +7,11 @@ import android.graphics.Paint
 import android.graphics.RectF
 
 class WheelOfFortune {
+
+    companion object {
+        const val STROKE_WIDTH = 3f
+    }
+
     private val arcPaint = Paint().apply {
         style = Paint.Style.FILL
         isAntiAlias = true
@@ -39,34 +44,37 @@ class WheelOfFortune {
 
 
     private fun drawWheel(canvas: Canvas) = canvas.run {
-        canvas.rotate(-90f, center, center)
-        canvas.scale(1f, -1f, center, center)
         var startAngle = 0f
         items.forEach {
-            val sweepAngle = it.value.toSweepAngle()
-            drawArc(
-                RectF(0f, 0f, size.toFloat(), size.toFloat()),
-                startAngle,
-                sweepAngle,
-                true,
-                arcPaint.apply {
-                    color = it.color
-                    style = Paint.Style.FILL
-                }
-            )
-            drawArc(
-                RectF(1.5f, 1.5f, size - 1.5f, size - 1.5f),
-                startAngle,
-                sweepAngle,
-                true,
-                arcPaint.apply {
-                    color = Color.BLACK
-                    strokeWidth = 3f
-                    style = Paint.Style.STROKE
-                }
-            )
+            val sweepAngle = it.value.toSweepAngle(true)
+            drawArcs(it,startAngle, sweepAngle)
             startAngle += sweepAngle
         }
+    }
+
+    private fun Canvas.drawArcs(item: Item,startAngle: Float, sweepAngle: Float) {
+        drawArc(
+            RectF(0f, 0f, size.toFloat(), size.toFloat()),
+            startAngle,
+            sweepAngle,
+            true,
+            arcPaint.apply {
+                color = item.color
+                style = Paint.Style.FILL
+            }
+        )
+        val padding = STROKE_WIDTH/2f
+        drawArc(
+            RectF(padding, padding, size - padding, size - padding),
+            startAngle,
+            sweepAngle,
+            true,
+            arcPaint.apply {
+                color = Color.BLACK
+                strokeWidth = STROKE_WIDTH
+                style = Paint.Style.STROKE
+            }
+        )
     }
 
     fun prepareBitmap(size: Int = 0) {
@@ -77,6 +85,7 @@ class WheelOfFortune {
         if (msize < 1) return
         wheelBitmap = Bitmap.createBitmap(msize, msize, Bitmap.Config.ARGB_8888)
         wheelCanvas = Canvas(wheelBitmap!!)
+        wheelCanvas!!.rotate(-90f, center, center)
         drawWheel(wheelCanvas!!)
     }
 
