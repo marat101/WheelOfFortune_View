@@ -4,6 +4,7 @@ import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
+import android.text.InputType
 import android.widget.Button
 import android.widget.EditText
 
@@ -52,7 +53,7 @@ class MainActivity : AppCompatActivity() {
             val r = (0..255).random()
             val g = (0..255).random()
             val b = (0..255).random()
-            randomColorBtn.setBackgroundColor(Color.rgb(r.toFloat(), g.toFloat(), b.toFloat()))
+            randomColorBtn.setBackgroundColor(Color.rgb(r, g, b))
             red.text = Editable.Factory.getInstance().newEditable(r.toString())
             green.text = Editable.Factory.getInstance().newEditable(g.toString())
             blue.text = Editable.Factory.getInstance().newEditable(b.toString())
@@ -62,9 +63,9 @@ class MainActivity : AppCompatActivity() {
                 nameText.text.toString(),
                 valueText.text.toString().toLong(),
                 Color.rgb(
-                    red.text.toString().toFloat(),
-                    green.text.toString().toFloat(),
-                    blue.text.toString().toFloat()
+                    red.text.toString().toInt(),
+                    green.text.toString().toInt(),
+                    blue.text.toString().toInt()
                 )
             )
         }

@@ -4,6 +4,9 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
 import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.ColorInt
@@ -27,6 +30,7 @@ class WheelOfFortuneView @JvmOverloads constructor(
 
     private val scope = CoroutineScope(Dispatchers.Main)
     private val wheel = WheelOfFortune()
+    private var pointerPath: Path? = null
 
     val springForce = SpringForce(166f).apply {//fixme private
         dampingRatio = SpringForce.DAMPING_RATIO_NO_BOUNCY
@@ -62,12 +66,13 @@ class WheelOfFortuneView @JvmOverloads constructor(
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         val maxValue = min(w, h) // max(w, h)
-        println("TAGTAG $maxValue")
         wheel.prepareBitmap(maxValue)
+        pointerPath = drawPointerPath(maxValue)
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+
         canvas.withSave {
             rotate(animatedValue.value, wheel.center, wheel.center)
             wheel.bitmap?.let { drawBitmap(it, 0f, 0f, paint) }
@@ -77,26 +82,21 @@ class WheelOfFortuneView @JvmOverloads constructor(
     }
 
     private fun Canvas.drawPointer() {
-        drawLine(
-            wheel.center,
-            0f,
-            wheel.center,
-            100f,
-            pointerPaint.apply {
-                color = Color.CYAN
-                strokeWidth = 20f
-                style = Paint.Style.FILL
-            })
-        drawLine(
-            wheel.center,
-            0f,
-            wheel.center,
-            95f,
-            pointerPaint.apply {
-                color = currentColor
-                strokeWidth = 10f
-                style = Paint.Style.FILL
-            })
+        withSave {
+            pointerPath?.let {
+                drawPath(it, pointerPaint.apply {
+                    color = Color.BLACK
+                })
+                scale(0.8f, 0.8f, wheel.center ,0f)
+                drawPath(
+                    it,
+                    pointerPaint.apply {
+                        color = currentColor
+                        strokeWidth = 10f
+                        style = Paint.Style.FILL
+                    })
+            }
+        }
     }
 
     private fun Float.getColor(): Int { //fixme delete

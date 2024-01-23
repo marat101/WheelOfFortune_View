@@ -61,7 +61,7 @@ class WheelOfFortune {
                 drawArcs(it, startAngle, sweepAngle)
                 withSave {
                     rotate(startAngle + sweepAngle / 2f, center, center)
-                    this.translate(center / 1.5f, 0f)
+                    this.translate(center / 1.2f, 0f)
                     withSave {
                         rotate(90f, center, center)
                         val bounds = Rect()
