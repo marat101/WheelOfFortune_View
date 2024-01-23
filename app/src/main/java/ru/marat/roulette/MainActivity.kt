@@ -20,39 +20,42 @@ class MainActivity : AppCompatActivity() {
         val green = findViewById<EditText>(R.id.green)
         val blue = findViewById<EditText>(R.id.blue)
 
-        wheelOfFortune.items = listOf(
-            Item(name = "красный", 2, Color.RED),
-            Item(name = "серый", 110, Color.GRAY),
-            Item(name = "хз", 130, Color.rgb(123, 1, 77)),
-            Item(name = "zelenskiy", 550, Color.GREEN),
-            Item(name = "хз", 190, Color.rgb(13, 91, 77)),
-            Item(name = "розовый", 220, Color.MAGENTA),
-            Item(name = "хз", 100, Color.rgb(190, 191, 43)),
-            Item(name = "синий", 430, Color.BLUE),
-            Item(name = "", 20, Color.YELLOW),
+//        wheelOfFortune.items = listOf(
+//            Item(name = "красный", 2, Color.RED),
+//            Item(name = "серый", 110, Color.GRAY),
+//            Item(name = "хз", 130, Color.rgb(123, 1, 77)),
+//            Item(name = "zelenskiy", 550, Color.GREEN),
+//            Item(name = "хз", 190, Color.rgb(13, 91, 77)),
+//            Item(name = "розовый", 220, Color.MAGENTA),
+//            Item(name = "хз", 100, Color.rgb(190, 191, 43)),
+//            Item(name = "синий", 430, Color.BLUE),
+//            Item(name = "", 20, Color.YELLOW),
 //            Item(name = "aaa", 200, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
 //            Item(name = "aaa", 320, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
 //            Item(name = "aaa", 290, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
 //            Item(name = "aaa", (0..255).random(), Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
 //            Item(name = "aaa", 77, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
-        )
+//        )
 
 
         wheelOfFortune.setOnClickListener {
-            if (!wheelOfFortune.animation.isRunning)
-                wheelOfFortune.animation.start()
-            else
-                wheelOfFortune.animation.skipToEnd()
+            wheelOfFortune.run {
+                if (!animation.isRunning) {
+                    springForce.finalPosition = animatedValue.value + (540..(360 * 15)).random()
+                    animation.start()
+                } else
+                    animation.skipToEnd()
+            }
         }
 
         randomColorBtn.setOnClickListener {
             val r = (0..255).random()
             val g = (0..255).random()
             val b = (0..255).random()
-            randomColorBtn.setBackgroundColor(Color.rgb(r.toFloat(),g.toFloat(),b.toFloat()))
-            red.text =Editable.Factory.getInstance().newEditable(r.toString())
-            green.text =Editable.Factory.getInstance().newEditable(g.toString())
-            blue.text =Editable.Factory.getInstance().newEditable(b.toString())
+            randomColorBtn.setBackgroundColor(Color.rgb(r.toFloat(), g.toFloat(), b.toFloat()))
+            red.text = Editable.Factory.getInstance().newEditable(r.toString())
+            green.text = Editable.Factory.getInstance().newEditable(g.toString())
+            blue.text = Editable.Factory.getInstance().newEditable(b.toString())
         }
         addBtn.setOnClickListener {
             wheelOfFortune.items += Item(

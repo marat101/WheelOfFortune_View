@@ -23,7 +23,8 @@ class WheelOfFortune {
     val textPaint = Paint().apply {
         color = Color.BLACK
         style = Paint.Style.FILL
-        this.textSize = 30f
+        textAlign = Paint.Align.CENTER
+        this.textSize = 40f
     }
 
     var center = 0f
@@ -38,8 +39,8 @@ class WheelOfFortune {
         private set
 
 
-    private var wheelCanvas: Canvas? = null
-    var wheelBitmap: Bitmap? = null
+    private var canvas: Canvas? = null
+    var bitmap: Bitmap? = null
         private set
 
     var items: List<Item> = listOf()
@@ -47,27 +48,30 @@ class WheelOfFortune {
             totalValue = 0L
             value.forEach { totalValue += it.value }
             field = value
-            if (size > 0 && wheelCanvas != null)
-                drawWheel(wheelCanvas!!)
+            canvas?.drawWheel()
         }
 
 
-    private fun drawWheel(canvas: Canvas) = canvas.run {
+    private fun Canvas.drawWheel() {
         var startAngle = 0f
-        items.forEach {
-            val sweepAngle = it.value.toSweepAngle(true)
-            drawArcs(it, startAngle, sweepAngle)
-            withSave {
-                rotate(startAngle + sweepAngle / 2f, center, center)
-                this.translate(center / 1.5f, 0f)
+        withSave {
+            if (items.size == 1) rotate(-180f, center, center)
+            items.forEach {
+                val sweepAngle = it.value.toSweepAngle(true)
+                drawArcs(it, startAngle, sweepAngle)
                 withSave {
-                    rotate(90f, center, center)
-                    val bounds = Rect()
-                    textPaint.getTextBounds(it.name, 0, it.name.length, bounds)
-                    drawText(it.name, center - bounds.centerX(), center, textPaint)
+                    rotate(startAngle + sweepAngle / 2f, center, center)
+                    this.translate(center / 1.5f, 0f)
+                    withSave {
+                        rotate(90f, center, center)
+                        val bounds = Rect()
+                        textPaint.getTextBounds(it.name, 0, it.name.length, bounds)
+                        drawText(it.name, center , center, textPaint)
+                        drawText(it.value.toString(), center, center + bounds.height() + 10f, textPaint)
+                    }
                 }
+                startAngle += sweepAngle
             }
-            startAngle += sweepAngle
         }
     }
 
@@ -102,10 +106,10 @@ class WheelOfFortune {
             size
         } else this.size
         if (msize < 1) return
-        wheelBitmap = Bitmap.createBitmap(msize, msize, Bitmap.Config.ARGB_8888)
-        wheelCanvas = Canvas(wheelBitmap!!)
-        wheelCanvas!!.rotate(-90f, center, center)
-        drawWheel(wheelCanvas!!)
+        bitmap = Bitmap.createBitmap(msize, msize, Bitmap.Config.ARGB_8888)
+        canvas = Canvas(bitmap!!)
+        canvas?.rotate(-90f, center, center)
+        canvas?.drawWheel()
     }
 
     fun Long.toSweepAngle(reversed: Boolean = false): Float {
