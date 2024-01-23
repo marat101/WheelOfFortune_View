@@ -21,15 +21,15 @@ class MainActivity : AppCompatActivity() {
         val blue = findViewById<EditText>(R.id.blue)
 
         wheelOfFortune.items = listOf(
-            Item(name = "aaa", 2, Color.RED),
-            Item(name = "aaa", 110, Color.GRAY),
-            Item(name = "aaa", 130, Color.rgb(123, 1, 77)),
+            Item(name = "красный", 2, Color.RED),
+            Item(name = "серый", 110, Color.GRAY),
+            Item(name = "хз", 130, Color.rgb(123, 1, 77)),
             Item(name = "zelenskiy", 550, Color.GREEN),
-            Item(name = "aaa", 190, Color.rgb(13, 91, 77)),
-            Item(name = "aaa", 220, Color.MAGENTA),
-            Item(name = "aaa", 100, Color.rgb(190, 191, 43)),
-            Item(name = "aaa", 430, Color.BLUE),
-            Item(name = "aaa", 20, Color.YELLOW),
+            Item(name = "хз", 190, Color.rgb(13, 91, 77)),
+            Item(name = "розовый", 220, Color.MAGENTA),
+            Item(name = "хз", 100, Color.rgb(190, 191, 43)),
+            Item(name = "синий", 430, Color.BLUE),
+            Item(name = "", 20, Color.YELLOW),
 //            Item(name = "aaa", 200, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
 //            Item(name = "aaa", 320, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
 //            Item(name = "aaa", 290, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),

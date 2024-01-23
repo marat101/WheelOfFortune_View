@@ -4,7 +4,10 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Rect
 import android.graphics.RectF
+import androidx.core.graphics.withSave
+
 
 class WheelOfFortune {
 
@@ -15,6 +18,12 @@ class WheelOfFortune {
     private val arcPaint = Paint().apply {
         style = Paint.Style.FILL
         isAntiAlias = true
+    }
+
+    val textPaint = Paint().apply {
+        color = Color.BLACK
+        style = Paint.Style.FILL
+        this.textSize = 30f
     }
 
     var center = 0f
@@ -47,12 +56,22 @@ class WheelOfFortune {
         var startAngle = 0f
         items.forEach {
             val sweepAngle = it.value.toSweepAngle(true)
-            drawArcs(it,startAngle, sweepAngle)
+            drawArcs(it, startAngle, sweepAngle)
+            withSave {
+                rotate(startAngle + sweepAngle / 2f, center, center)
+                this.translate(center / 1.5f, 0f)
+                withSave {
+                    rotate(90f, center, center)
+                    val bounds = Rect()
+                    textPaint.getTextBounds(it.name, 0, it.name.length, bounds)
+                    drawText(it.name, center - bounds.centerX(), center, textPaint)
+                }
+            }
             startAngle += sweepAngle
         }
     }
 
-    private fun Canvas.drawArcs(item: Item,startAngle: Float, sweepAngle: Float) {
+    private fun Canvas.drawArcs(item: Item, startAngle: Float, sweepAngle: Float) {
         drawArc(
             RectF(0f, 0f, size.toFloat(), size.toFloat()),
             startAngle,
@@ -63,7 +82,7 @@ class WheelOfFortune {
                 style = Paint.Style.FILL
             }
         )
-        val padding = STROKE_WIDTH/2f
+        val padding = STROKE_WIDTH / 2f
         drawArc(
             RectF(padding, padding, size - padding, size - padding),
             startAngle,
