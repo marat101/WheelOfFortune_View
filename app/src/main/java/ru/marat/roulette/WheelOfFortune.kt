@@ -1,30 +1,36 @@
 package ru.marat.roulette
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
 import android.graphics.RectF
-import androidx.core.graphics.withSave
+import android.text.StaticLayout
+import android.text.TextPaint
 
 
-class WheelOfFortune {
+class WheelOfFortune(private val context: Context) {
 
     companion object {
         const val STROKE_WIDTH = 3f
     }
 
+    private val porterDuffXfermode = PorterDuffXfermode(PorterDuff.Mode.DST_ATOP)
+    private val paint = Paint()
     private val arcPaint = Paint().apply {
         style = Paint.Style.FILL
         isAntiAlias = true
     }
-
-    val textPaint = Paint().apply {
+    private val textPaint = TextPaint().apply {
         color = Color.BLACK
         style = Paint.Style.FILL
         textAlign = Paint.Align.CENTER
-        this.textSize = 40f
+
+        this.textSize = 16f.spToPx(context)
     }
 
     var center = 0f
@@ -54,50 +60,57 @@ class WheelOfFortune {
 
     private fun Canvas.drawWheel() {
         var startAngle = 0f
-        withSave {
-            if (items.size == 1) rotate(-180f, center, center)
-            items.forEach {
-                val sweepAngle = it.value.toSweepAngle(true)
-                drawArcs(it, startAngle, sweepAngle)
-                withSave {
-                    rotate(startAngle + sweepAngle / 2f, center, center)
-                    this.translate(center / 1.2f, 0f)
-                    withSave {
-                        rotate(90f, center, center)
-                        val bounds = Rect()
-                        textPaint.getTextBounds(it.name, 0, it.name.length, bounds)
-                        drawText(it.name, center , center, textPaint)
-                        drawText(it.value.toString(), center, center + bounds.height() + 10f, textPaint)
-                    }
-                }
-                startAngle += sweepAngle
+        if (items.size == 1) rotate(-180f, center, center)
+        items.forEach {
+            val sweepAngle = it.value.toSweepAngle(true)
+            drawWithLayer {
+                drawItemText(it, startAngle, sweepAngle)
+                drawItemArc(it, startAngle, sweepAngle)
             }
+            startAngle += sweepAngle
         }
     }
 
-    private fun Canvas.drawArcs(item: Item, startAngle: Float, sweepAngle: Float) {
-        drawArc(
-            RectF(0f, 0f, size.toFloat(), size.toFloat()),
-            startAngle,
-            sweepAngle,
-            true,
-            arcPaint.apply {
-                color = item.color
-                style = Paint.Style.FILL
+    private fun Canvas.drawItemArc(item: Item, startAngle: Float, sweepAngle: Float) {
+        drawWithLayer(paint.apply { xfermode = porterDuffXfermode }) {
+            drawArc(
+                RectF(0f, 0f, size.toFloat(), size.toFloat()),
+                startAngle,
+                sweepAngle,
+                true,
+                arcPaint.apply {
+                    color = item.color
+                    style = Paint.Style.FILL
+                }
+            )
+            val padding = STROKE_WIDTH / 2f
+            drawArc(
+                RectF(padding, padding, size - padding, size - padding),
+                startAngle,
+                sweepAngle,
+                true,
+                arcPaint.apply {
+                    color = Color.BLACK
+                    strokeWidth = STROKE_WIDTH
+                    style = Paint.Style.STROKE
+                }
+            )
+        }
+    }
+
+    private fun Canvas.drawItemText(item: Item, startAngle: Float, sweepAngle: Float) {
+        drawWithLayer {
+            rotate(startAngle + sweepAngle / 2f, center, center)
+            this.translate(center / 1.2f, 0f)
+            drawWithLayer {
+                rotate(90f, center, center)
+                val bounds = Rect()
+
+                textPaint.getTextBounds(item.name, 0, item.name.length, bounds)
+                drawText(item.name, center, center, textPaint)
+                drawText(item.value.toString(), center, center + bounds.height() + 10f, textPaint)
             }
-        )
-        val padding = STROKE_WIDTH / 2f
-        drawArc(
-            RectF(padding, padding, size - padding, size - padding),
-            startAngle,
-            sweepAngle,
-            true,
-            arcPaint.apply {
-                color = Color.BLACK
-                strokeWidth = STROKE_WIDTH
-                style = Paint.Style.STROKE
-            }
-        )
+        }
     }
 
     fun prepareBitmap(size: Int = 0) {

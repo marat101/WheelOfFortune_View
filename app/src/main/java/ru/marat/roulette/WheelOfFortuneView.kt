@@ -29,7 +29,7 @@ class WheelOfFortuneView @JvmOverloads constructor(
     private val pointerPaint = Paint()
 
     private val scope = CoroutineScope(Dispatchers.Main)
-    private val wheel = WheelOfFortune()
+    private val wheel = WheelOfFortune(context)
     private var pointerPath: Path? = null
 
     val springForce = SpringForce(166f).apply {//fixme private
@@ -73,7 +73,7 @@ class WheelOfFortuneView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        canvas.withSave {
+        canvas.drawWithLayer {
             rotate(animatedValue.value, wheel.center, wheel.center)
             wheel.bitmap?.let { drawBitmap(it, 0f, 0f, paint) }
         }
@@ -82,7 +82,7 @@ class WheelOfFortuneView @JvmOverloads constructor(
     }
 
     private fun Canvas.drawPointer() {
-        withSave {
+        drawWithLayer {
             pointerPath?.let {
                 drawPath(it, pointerPaint.apply {
                     color = Color.BLACK
