@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
 //            Item(name = "aaa", 320, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
 //            Item(name = "aaa", 290, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
 //            Item(name = "aaa", (0..255).random(), Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
-            Item(name = "OOOOOOOOOOOOOOOOOOOOOOO\nOOOOOOOOOOOOOOOOOOOOOOOO", 77, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
+            Item(name = "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO", 77, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
         )
 
 

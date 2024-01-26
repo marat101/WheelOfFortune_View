@@ -9,8 +9,11 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
 import android.graphics.RectF
+import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
+import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 
 
 class WheelOfFortune(private val context: Context) {
@@ -64,15 +67,15 @@ class WheelOfFortune(private val context: Context) {
         items.forEach {
             val sweepAngle = it.value.toSweepAngle(true)
             drawWithLayer {
-                drawItemText(it, startAngle, sweepAngle)
                 drawItemArc(it, startAngle, sweepAngle)
+                drawItemText(it, startAngle, sweepAngle)
             }
             startAngle += sweepAngle
         }
     }
 
     private fun Canvas.drawItemArc(item: Item, startAngle: Float, sweepAngle: Float) {
-        drawWithLayer(paint.apply { xfermode = porterDuffXfermode }) {
+        drawWithLayer(paint.apply { /*xfermode = porterDuffXfermode*/ }) {
             drawArc(
                 RectF(0f, 0f, size.toFloat(), size.toFloat()),
                 startAngle,
@@ -101,14 +104,25 @@ class WheelOfFortune(private val context: Context) {
     private fun Canvas.drawItemText(item: Item, startAngle: Float, sweepAngle: Float) {
         drawWithLayer {
             rotate(startAngle + sweepAngle / 2f, center, center)
-            this.translate(center / 1.2f, 0f)
             drawWithLayer {
                 rotate(90f, center, center)
-                val bounds = Rect()
+                val text = "${item.name}\n${item.value}"
+                val a = measureWidth(size.toFloat(),center * 0.9f,sweepAngle.absoluteValue)
+                val staticLayout = StaticLayout.Builder.obtain(
+                    text,
+                    0,
+                    text.length,
+                    textPaint,
+                    a.roundToInt()
+                )
+                    .build()
 
-                textPaint.getTextBounds(item.name, 0, item.name.length, bounds)
-                drawText(item.name, center, center, textPaint)
-                drawText(item.value.toString(), center, center + bounds.height() + 10f, textPaint)
+                translate(center, center * 0.1f)
+                staticLayout.draw(this)
+//                val bounds = Rect()
+//                textPaint.getTextBounds(item.name, 0, item.name.length, bounds)
+//                drawText(item.name, center, center, textPaint)
+//                drawText(item.value.toString(), center, center + bounds.height() + 10f, textPaint)
             }
         }
     }
