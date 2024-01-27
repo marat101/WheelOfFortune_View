@@ -11,7 +11,10 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.text.Layout
 import android.text.StaticLayout
+import android.text.TextDirectionHeuristics
 import android.text.TextPaint
+import android.text.TextUtils
+import android.util.Log
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
@@ -22,7 +25,7 @@ class WheelOfFortune(private val context: Context) {
         const val STROKE_WIDTH = 3f
     }
 
-    private val porterDuffXfermode = PorterDuffXfermode(PorterDuff.Mode.DST_ATOP)
+    private val porterDuffXfermode = PorterDuffXfermode(PorterDuff.Mode.DST_OVER)
     private val paint = Paint()
     private val arcPaint = Paint().apply {
         style = Paint.Style.FILL
@@ -31,8 +34,7 @@ class WheelOfFortune(private val context: Context) {
     private val textPaint = TextPaint().apply {
         color = Color.BLACK
         style = Paint.Style.FILL
-        textAlign = Paint.Align.CENTER
-
+        isAntiAlias = true
         this.textSize = 16f.spToPx(context)
     }
 
@@ -63,19 +65,20 @@ class WheelOfFortune(private val context: Context) {
 
     private fun Canvas.drawWheel() {
         var startAngle = 0f
-        if (items.size == 1) rotate(-180f, center, center)
+//        if (items.size == 1) rotate(-180f, center, center)
         items.forEach {
             val sweepAngle = it.value.toSweepAngle(true)
             drawWithLayer {
-                drawItemArc(it, startAngle, sweepAngle)
                 drawItemText(it, startAngle, sweepAngle)
+                drawItemArc(it, startAngle, sweepAngle)
             }
             startAngle += sweepAngle
         }
     }
 
     private fun Canvas.drawItemArc(item: Item, startAngle: Float, sweepAngle: Float) {
-        drawWithLayer(paint.apply { /*xfermode = porterDuffXfermode*/ }) {
+        drawWithLayer(paint = paint.apply { xfermode = porterDuffXfermode }) {
+            canvas?.rotate(-90f, center, center)
             drawArc(
                 RectF(0f, 0f, size.toFloat(), size.toFloat()),
                 startAngle,
@@ -103,39 +106,49 @@ class WheelOfFortune(private val context: Context) {
 
     private fun Canvas.drawItemText(item: Item, startAngle: Float, sweepAngle: Float) {
         drawWithLayer {
-            rotate(startAngle + sweepAngle / 2f, center, center)
-            drawWithLayer {
-                rotate(90f, center, center)
-                val text = "${item.name}\n${item.value}"
-                val a = measureWidth(size.toFloat(),center * 0.9f,sweepAngle.absoluteValue)
-                val staticLayout = StaticLayout.Builder.obtain(
-                    text,
-                    0,
-                    text.length,
-                    textPaint,
-                    a.roundToInt()
-                )
-                    .build()
+            val padding = center * 0.1f
+            rotate(startAngle + (sweepAngle / 2f), center, center)
+            Log.e("TAGTAG", startAngle.toString())
+            Log.e("TAGTAG", sweepAngle.toString())
+            val text = item.name
+            val a = measureWidth(size.toFloat(), center * 0.9f, sweepAngle.absoluteValue)
+            val staticLayout = StaticLayout.Builder.obtain(
+                text,
+                0,
+                text.length,
+                textPaint,
+                a.roundToInt()
+            )
+//                    .setMaxLines(2)
+//                    .setEllipsize(TextUtils.TruncateAt.END)
+                .setAlignment(Layout.Alignment.ALIGN_CENTER)
+                .build()
+//            if (item.value == 77L)
+//                drawRect(0f, 0f, size.toFloat(), size.toFloat(), arcPaint.apply {
+//                    color = Color.YELLOW
+//                    strokeWidth = STROKE_WIDTH
+//                    style = Paint.Style.STROKE
+//                })
 
-                translate(center, center * 0.1f)
-                staticLayout.draw(this)
-//                val bounds = Rect()
-//                textPaint.getTextBounds(item.name, 0, item.name.length, bounds)
-//                drawText(item.name, center, center, textPaint)
-//                drawText(item.value.toString(), center, center + bounds.height() + 10f, textPaint)
-            }
+
+            drawText(
+                item.value.toString(),
+                center,
+                padding + padding + staticLayout.height,
+                paint.apply {
+                    textSize = textPaint.textSize
+                    textAlign = Paint.Align.CENTER
+                })
+            translate(center - (staticLayout.width / 2f), padding)
+            staticLayout.draw(this)
         }
     }
 
     fun prepareBitmap(size: Int = 0) {
-        val msize = if (size > 0) {
-            this.size = size
-            size
-        } else this.size
-        if (msize < 1) return
-        bitmap = Bitmap.createBitmap(msize, msize, Bitmap.Config.ARGB_8888)
+        if (size < 1) throw IllegalArgumentException("bitmap size must be greater than 0")
+        this.size = size
+        bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
         canvas = Canvas(bitmap!!)
-        canvas?.rotate(-90f, center, center)
         canvas?.drawWheel()
     }
 
