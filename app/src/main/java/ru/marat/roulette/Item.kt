@@ -7,9 +7,9 @@ data class Item(
     val value: Long,
     @ColorInt val color: Int
 ) {
-    constructor(name: String, value: Int, @ColorInt color: Int) : this(
-        name,
-        value.toLong(),
-        color
-    )
+//    constructor(name: String, value: Int, @ColorInt color: Int) : this(
+//        name,
+//        value.toLong(),
+//        color
+//    )
 }
