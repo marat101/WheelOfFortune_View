@@ -7,14 +7,11 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
-import android.graphics.Rect
 import android.graphics.RectF
 import android.text.Layout
 import android.text.StaticLayout
-import android.text.TextDirectionHeuristics
 import android.text.TextPaint
-import android.text.TextUtils
-import android.util.Log
+import androidx.annotation.ColorInt
 import androidx.annotation.Px
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
@@ -46,6 +43,7 @@ class WheelOfFortune(private val context: Context) {
             center = value / 2f
             field = value
         }
+
     @Px
     var edgePadding = 16f.dpToPx(context)
         set(value) {
@@ -70,16 +68,18 @@ class WheelOfFortune(private val context: Context) {
 
 
     private fun Canvas.drawWheel() {
-        if (items.size == 1) rotate(-180f, center, center)
-        defaultTextLayoutWidth = measureWidth(center, center - edgePadding, 180f)
-        var startAngle = 0f
-        items.forEach {
-            val sweepAngle = it.value.toSweepAngle(true)
-            drawWithLayer {
-                drawItemText(it, startAngle, sweepAngle)
-                drawItemArc(it, startAngle, sweepAngle)
+        drawWithLayer {
+            if (items.size == 1) rotate(-180f, center, center)
+            defaultTextLayoutWidth = measureWidth(center, center - edgePadding)
+            var startAngle = 0f
+            items.forEach {
+                val sweepAngle = it.value.toSweepAngle(true)
+                drawWithLayer {
+                    drawItemText(it, startAngle, sweepAngle)
+                    drawItemArc(it, startAngle, sweepAngle)
+                }
+                startAngle += sweepAngle
             }
-            startAngle += sweepAngle
         }
     }
 
@@ -112,37 +112,59 @@ class WheelOfFortune(private val context: Context) {
     }
 
     private fun Canvas.drawItemText(item: Item, startAngle: Float, sweepAngle: Float) {
+        val text = item.name
+        if (text.isBlank()) return
+        val textColor = getTextColor(item.color) // временно
         drawWithLayer {
             rotate(startAngle + (sweepAngle / 2f), center, center)
-            val text = item.name
             val staticLayout = StaticLayout.Builder.obtain(
                 text,
                 0,
                 text.length,
-                textPaint,
-                defaultTextLayoutWidth.roundToInt())
+                textPaint.apply { color = textColor },
+                defaultTextLayoutWidth.roundToInt()
+            )
 //                    .setMaxLines(2)
 //                    .setEllipsize(TextUtils.TruncateAt.END)
                 .setAlignment(Layout.Alignment.ALIGN_CENTER)
                 .build()
-            val a = measureWidth(center, (center - (edgePadding + staticLayout.height/2)).coerceAtLeast(1f), sweepAngle.absoluteValue)
+
+            if (checkOutOfBounds(
+                    staticLayout.height.toFloat(),
+                    staticLayout.getMaxLineWidth(),
+                    sweepAngle.absoluteValue
+                )
+            ) return@drawWithLayer
             drawText(
                 item.value.toString(),
                 center,
                 edgePadding + edgePadding + staticLayout.height,
                 paint.apply {
-                    textSize = textPaint.textSize
+                    textSize = 8f.spToPx(context)
                     textAlign = Paint.Align.CENTER
+                    color = textColor
                 })
             translate(center - (staticLayout.width / 2f), edgePadding)
-            drawRect(0f, 0f,staticLayout.width.toFloat(), staticLayout.height.toFloat(), arcPaint.apply {
-                color = Color.BLACK
-                strokeWidth = STROKE_WIDTH
-                style = Paint.Style.STROKE
-            })
-            if (a == 0f) return@drawWithLayer
             staticLayout.draw(this)
         }
+    }
+
+    fun getTextColor(color: Int): Int {
+        val darkness =
+            1 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255
+        return if (darkness < 0.5) {
+            Color.BLACK // It's a light color
+        } else {
+            Color.WHITE // It's a dark color
+        }
+    }
+
+    fun StaticLayout.getMaxLineWidth(): Float {
+        val linesWidth = mutableListOf<Float>()
+        repeat(lineCount) {
+            linesWidth.add(getLineWidth(it))
+        }
+        return linesWidth.max()
     }
 
     fun prepareBitmap(size: Int) {
