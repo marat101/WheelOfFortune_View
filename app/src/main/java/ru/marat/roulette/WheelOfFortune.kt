@@ -1,6 +1,7 @@
 package ru.marat.roulette
 
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -11,8 +12,10 @@ import android.graphics.RectF
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
-import androidx.annotation.ColorInt
 import androidx.annotation.Px
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.drawable.toBitmap
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
@@ -20,7 +23,7 @@ import kotlin.math.roundToInt
 class WheelOfFortune(private val context: Context) {
 
     companion object {
-        const val STROKE_WIDTH = 3f
+        const val STROKE_WIDTH = 2.5f
     }
 
     private val porterDuffXfermode = PorterDuffXfermode(PorterDuff.Mode.DST_ATOP)
@@ -36,21 +39,26 @@ class WheelOfFortune(private val context: Context) {
         this.textSize = 16f.spToPx(context)
     }
 
-    var center = 0f
-        private set
-    var size = 0
-        private set(value) {
-            center = value / 2f
-            field = value
-        }
+    private var iconbm: Bitmap? = null //todo delete
 
-    @Px
-    var edgePadding = 16f.dpToPx(context)
+    var iconsSize = 0f
+        private set
+    var edgePadding = 10f.dpToPx(context)
         set(value) {
             field = value
             canvas?.drawWheel()
         }
     private var defaultTextLayoutWidth = 0f
+
+    var center = 0f
+        private set
+    var size = 0
+        private set(value) {
+            center = value / 2f
+            iconsSize = value / 14f
+            field = value
+        }
+
 
     private var totalValue = 0L
 
@@ -67,19 +75,17 @@ class WheelOfFortune(private val context: Context) {
         }
 
 
-    private fun Canvas.drawWheel() {
-        drawWithLayer {
-            if (items.size == 1) rotate(-180f, center, center)
-            defaultTextLayoutWidth = measureWidth(center, center - edgePadding)
-            var startAngle = 0f
-            items.forEach {
-                val sweepAngle = it.value.toSweepAngle(true)
-                drawWithLayer {
-                    drawItemText(it, startAngle, sweepAngle)
-                    drawItemArc(it, startAngle, sweepAngle)
-                }
-                startAngle += sweepAngle
+    private fun Canvas.drawWheel() = drawWithLayer {
+        if (items.size == 1) rotate(-180f, center, center)
+        defaultTextLayoutWidth = measureWidth(center, center - edgePadding)
+        var startAngle = 0f
+        items.forEach {
+            val sweepAngle = it.value.toSweepAngle(true)
+            drawWithLayer {
+                drawItemContent(it, startAngle, sweepAngle)
+                drawItemArc(it, startAngle, sweepAngle)
             }
+            startAngle += sweepAngle
         }
     }
 
@@ -111,16 +117,34 @@ class WheelOfFortune(private val context: Context) {
         }
     }
 
-    private fun Canvas.drawItemText(item: Item, startAngle: Float, sweepAngle: Float) {
-        val text = item.name
-        if (text.isBlank()) return
-        val textColor = getTextColor(item.color) // временно
+    private fun Canvas.drawItemContent(item: Item, startAngle: Float, sweepAngle: Float) {
+        if (!checkOutOfBounds(iconsSize, iconsSize, sweepAngle.absoluteValue) || item.icon == null)
+            drawWithLayer {
+                rotate(startAngle + (sweepAngle / 2f), center, center)
+                item.icon?.let {
+
+                    iconbm =
+                        ResourcesCompat.getDrawable(context.resources, it, context.theme)?.toBitmap(
+                            iconsSize.roundToInt(),
+                            iconsSize.roundToInt(),
+                            Bitmap.Config.ARGB_8888
+                        )
+                    drawBitmap(iconbm!!, center - (iconsSize / 2), edgePadding, null)
+                }
+
+                if (item.name.isBlank()) return@drawWithLayer
+                drawItemText(item, if (item.icon == null) 0f else iconsSize, sweepAngle)
+            }
+    }
+
+
+    private fun Canvas.drawItemText(item: Item, iconHeight: Float, sweepAngle: Float) =
         drawWithLayer {
-            rotate(startAngle + (sweepAngle / 2f), center, center)
+            val textColor = getTextColor(item.color) // временно
             val staticLayout = StaticLayout.Builder.obtain(
-                text,
+                item.name,
                 0,
-                text.length,
+                item.name.length,
                 textPaint.apply { color = textColor },
                 defaultTextLayoutWidth.roundToInt()
             )
@@ -130,7 +154,7 @@ class WheelOfFortune(private val context: Context) {
                 .build()
 
             if (checkOutOfBounds(
-                    staticLayout.height.toFloat(),
+                    staticLayout.height + iconHeight,
                     staticLayout.getMaxLineWidth(),
                     sweepAngle.absoluteValue
                 )
@@ -138,24 +162,21 @@ class WheelOfFortune(private val context: Context) {
             drawText(
                 item.value.toString(),
                 center,
-                edgePadding + edgePadding + staticLayout.height,
+                edgePadding + edgePadding + staticLayout.height + iconHeight,
                 paint.apply {
                     textSize = 8f.spToPx(context)
                     textAlign = Paint.Align.CENTER
                     color = textColor
                 })
-            translate(center - (staticLayout.width / 2f), edgePadding)
+            translate(center - (staticLayout.width / 2f), edgePadding + iconHeight)
             staticLayout.draw(this)
         }
-    }
 
     fun getTextColor(color: Int): Int {
-        val darkness =
-            1 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255
-        return if (darkness < 0.5) {
-            Color.BLACK // It's a light color
+        return if (ColorUtils.calculateLuminance(color) > 0.5) {
+            Color.BLACK // If it's a light color
         } else {
-            Color.WHITE // It's a dark color
+            Color.WHITE // If it's a dark color
         }
     }
 

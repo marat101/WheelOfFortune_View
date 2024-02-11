@@ -38,12 +38,13 @@ class MainActivity : AppCompatActivity() {
 //            Item(name = "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO", 77, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
 //        )
 
-//        wheelOfFortune.items = listOf(
-//            Item(name = "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO", 320, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
-//            Item(name = "aaa", 320, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
-//            Item(name = "aaa", 320, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
-//            Item(name = "aaa", 320, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
-//        )
+        wheelOfFortune.items = listOf(
+            Item(name = "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO", 320, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
+            Item(name = "aaa", 320, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
+            Item(name = "aaa", 320, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
+            Item(name = "aaa", 320, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
+            Item("Apple", 320, Color.WHITE, R.drawable.apple),
+        )
 
         wheelOfFortune.setOnClickListener {
             wheelOfFortune.run {

@@ -1,15 +1,12 @@
 package ru.marat.roulette
 
 import androidx.annotation.ColorInt
+import androidx.annotation.DrawableRes
 
 data class Item(
     val name: String,
     val value: Long,
-    @ColorInt val color: Int
+    @ColorInt val color: Int,
+    @DrawableRes val icon: Int? = null
 ) {
-//    constructor(name: String, value: Int, @ColorInt color: Int) : this(
-//        name,
-//        value.toLong(),
-//        color
-//    )
 }
