@@ -39,11 +39,11 @@ class MainActivity : AppCompatActivity() {
 //        )
 
         wheelOfFortune.items = listOf(
-            Item(name = "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO", 320, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
-            Item(name = "aaa", 320, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
-            Item(name = "aaa", 320, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
-            Item(name = "aaa", 320, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
-            Item("Apple", 320, Color.WHITE, R.drawable.apple),
+//            Item("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO", 320, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
+            Item("Android", 320, Color.WHITE, R.drawable.android),
+//            Item("какой-то\nтекст", 320, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
+//            Item("какой-то текст", 320, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
+            Item("Apple", 320, Color.LTGRAY, R.drawable.apple),
         )
 
         wheelOfFortune.setOnClickListener {
