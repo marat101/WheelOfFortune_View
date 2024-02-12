@@ -13,17 +13,17 @@ fun measureWidth(sideWidth: Float, height: Float): Float {
 }
 
 /**
+ * @param offset distance from the edge of the circle to the point closest to the center of the circle
  * @return true if out of bounds
  */
-fun WheelOfFortune.checkOutOfBounds(
-    textLayoutHeight: Float,
-    textLayoutWidth: Float,
+fun checkOutOfBounds(
+    offset: Float,
+    layoutWidth: Float,
     sweepAngle: Float
 ): Boolean {
-    val triangleHeight = center - edgePadding - textLayoutHeight
-    val leg = textLayoutWidth / 2
-    val triangleSide = sqrt(triangleHeight.pow(2) + leg.pow(2))
-    val angle = measureAngle(triangleSide, triangleSide, textLayoutWidth)
+    val leg = layoutWidth / 2
+    val triangleSide = sqrt(offset.pow(2) + leg.pow(2))
+    val angle = measureAngle(triangleSide, triangleSide, layoutWidth)
     return sweepAngle <= angle
 }
 

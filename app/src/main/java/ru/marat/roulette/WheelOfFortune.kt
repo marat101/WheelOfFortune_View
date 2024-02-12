@@ -118,14 +118,19 @@ class WheelOfFortune(private val context: Context) {
     }
 
     private fun Canvas.drawItemContent(item: Item, startAngle: Float, sweepAngle: Float) {
-        if (!checkOutOfBounds(iconsSize, iconsSize, sweepAngle.absoluteValue) || item.icon == null)
+        if (!checkOutOfBounds(
+                center - (iconsSize + edgePadding),
+                iconsSize,
+                sweepAngle.absoluteValue
+            ) || item.icon == null
+        )
             drawWithLayer {
                 rotate(startAngle + (sweepAngle / 2f), center, center)
                 item.icon?.let {
                     drawWithLayer { // todo перенести в отдельную функцию
                         ResourcesCompat.getDrawable(context.resources, it, context.theme)?.apply {
                             setBounds(0, 0, iconsSize.roundToInt(), iconsSize.roundToInt())
-                            translate(center - (iconsSize/2f), edgePadding)
+                            translate(center - (iconsSize / 2f), edgePadding)
                             draw(this@drawItemContent)
                         }
                     }
@@ -147,18 +152,17 @@ class WheelOfFortune(private val context: Context) {
                 textPaint.apply { color = textColor },
                 defaultTextLayoutWidth.roundToInt()
             )
-//                    .setMaxLines(2)
-//                    .setEllipsize(TextUtils.TruncateAt.END)
                 .setAlignment(Layout.Alignment.ALIGN_CENTER)
                 .build()
 
-            if (checkOutOfBounds(
-                    staticLayout.height + iconHeight,
-                    staticLayout.getMaxLineWidth(),
-                    sweepAngle.absoluteValue
-                )
-            ) return@drawWithLayer
-            drawText(
+            val outOfBound = checkOutOfBounds(
+                center - (staticLayout.height + iconHeight + edgePadding),
+                staticLayout.getMaxLineWidth(),
+                sweepAngle.absoluteValue
+            )
+
+            if (outOfBound) return@drawWithLayer
+            drawText( //fixme убрать потом
                 item.value.toString(),
                 center,
                 edgePadding + edgePadding + staticLayout.height + iconHeight,
