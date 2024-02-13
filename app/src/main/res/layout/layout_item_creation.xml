@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:ignore="MissingDefaultResource">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="top"
+        android:padding="16dp"
+        android:orientation="vertical">
+
+        <ru.marat.roulette.WheelOfFortuneView
+            android:id="@+id/wheel"
+            android:layout_width="match_parent"
+            android:layout_height="430dp" />
+
+        <EditText
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="name" />
+
+        <EditText
+            android:id="@+id/value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="value"
+            android:inputType="numberDecimal|number"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/red"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="R"
+                android:inputType="number" />
+
+            <EditText
+                android:id="@+id/green"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="G"
+                android:inputType="number" />
+
+            <EditText
+                android:id="@+id/blue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="B"
+                android:inputType="number" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/random"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:text="Random color" />
+
+        <Button
+            android:id="@+id/add"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:text="ADD" />
+    </LinearLayout>
+</ScrollView>
