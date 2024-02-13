@@ -1,6 +1,7 @@
 package ru.marat.roulette
 
 import android.content.Context
+import android.text.StaticLayout
 import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.View
@@ -21,6 +22,14 @@ fun Float.dpToPx(context: Context): Float {
         this,
         context.resources.displayMetrics
     )
+}
+
+fun StaticLayout.getMaxLineWidth(): Float {
+    val linesWidth = mutableListOf<Float>()
+    repeat(lineCount) {
+        linesWidth.add(getLineWidth(it))
+    }
+    return linesWidth.max()
 }
 
 fun Float.roundDpToPx(context: Context): Int {
