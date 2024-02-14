@@ -5,16 +5,12 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import androidx.fragment.app.Fragment
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import ru.marat.roulette.Item
 import ru.marat.roulette.ItemDirection
 import ru.marat.roulette.R
 import ru.marat.roulette.WheelOfFortuneView
-import ru.marat.roulette.work_manager.TimerWM
 
-class WheelScreen : Fragment(R.layout.fragment_wheel) {
+class WheelFragment : Fragment(R.layout.fragment_wheel) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val wheelOfFortune = view.findViewById<WheelOfFortuneView>(R.id.wheel)
@@ -22,6 +18,11 @@ class WheelScreen : Fragment(R.layout.fragment_wheel) {
         val itemsBtn = view.findViewById<Button>(R.id.items_btn)
 
         itemsBtn.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .addToBackStack("whl")
+                .add(R.id.main_container,ItemsFragment::class.java,null)
+                .hide(this)
+                .commit()
         }
 
         //        wheelOfFortune.items = listOf(

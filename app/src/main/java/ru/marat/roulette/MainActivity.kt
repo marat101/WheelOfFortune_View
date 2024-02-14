@@ -1,20 +1,15 @@
 package ru.marat.roulette
 
-import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Editable
-import android.text.InputType
-import android.widget.Button
-import android.widget.EditText
-import ru.marat.roulette.fragments.WheelScreen
+import ru.marat.roulette.fragments.WheelFragment
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         supportFragmentManager.beginTransaction()
-            .replace(R.id.main_container, WheelScreen::class.java, null)
+            .replace(R.id.main_container, WheelFragment::class.java, null)
             .commit()
 
 //        randomColorBtn.setOnClickListener {
