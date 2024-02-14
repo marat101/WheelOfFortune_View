@@ -1,41 +1,85 @@
 package ru.marat.roulette.fragments
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
+import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup.LayoutParams
 import android.widget.Button
 import android.widget.EditText
-import androidx.core.graphics.ColorUtils
+import android.widget.ImageView
+import android.widget.PopupWindow
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
 import ru.marat.roulette.Item
 import ru.marat.roulette.R
 import ru.marat.roulette.fragments.other.ItemsList
+import ru.marat.roulette.fragments.recycler_view.IconsRVA
+
 
 class EditDialogFragment : DialogFragment(R.layout.layout_item_creation) {
+
+    private var iconRes: Int? = null
+
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val position = arguments?.getInt("pos")
+        val pos = arguments?.getInt("pos")
         val addBtn = view.findViewById<Button>(R.id.add)
         val randomColorBtn = view.findViewById<Button>(R.id.random)
         val nameText = view.findViewById<EditText>(R.id.name)
         val valueText = view.findViewById<EditText>(R.id.value)
+        val iconBtn = view.findViewById<ImageView>(R.id.item_icon)
         val red = view.findViewById<EditText>(R.id.red)
         val green = view.findViewById<EditText>(R.id.green)
         val blue = view.findViewById<EditText>(R.id.blue)
 
-        position?.let { position ->
+        pos?.let { position ->
             val item = ItemsList.flow.value[position]
             nameText.setText(item.name)
             valueText.setText(item.value.toString())
             red.setText(Color.red(item.color).toString())
             green.setText(Color.green(item.color).toString())
             blue.setText(Color.blue(item.color).toString())
+            iconRes = item.icon
+            iconBtn.setImageResource(item.icon ?: R.drawable.baseline_close_24)
             randomColorBtn.setBackgroundColor(item.color)
+        }
+        iconBtn.setOnClickListener {
+            val popupView = layoutInflater.inflate(R.layout.popup_list, null)
+            val iconsRcView = popupView.findViewById<RecyclerView>(R.id.popup_list)
+            val popupWindow =
+                PopupWindow(popupView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true)
+            val adapter = IconsRVA(
+                list = listOf(
+                    null,
+                    R.drawable.android,
+                    R.drawable.apple,
+                    R.drawable.youtube_color_svgrepo_com,
+                    R.drawable.flag_ru_svgrepo_com,
+                    R.drawable.flag_for_flag_belarus_svgrepo_com,
+                    R.drawable.flag_kz_svgrepo_com,
+                    R.drawable.flag_ua_svgrepo_com,
+                    R.drawable.samsung_logo_svgrepo_com,
+                    R.drawable.xiaomi_logo_svgrepo_com,
+                    R.drawable.clown_face_svgrepo_com,
+                ),
+                onClick = { res ->
+                    res?.let { iconBtn.setImageResource(it) }
+                    iconRes = res
+                    popupWindow.dismiss()
+                }
+            )
+            iconsRcView.adapter = adapter
+            popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0)
+            popupView.setOnTouchListener { v, event ->
+                popupWindow.dismiss()
+                true
+            }
         }
         randomColorBtn.setOnClickListener {
             val r = (0..255).random()
@@ -48,19 +92,19 @@ class EditDialogFragment : DialogFragment(R.layout.layout_item_creation) {
         }
         addBtn.setOnClickListener {
             val items = ItemsList.flow.value.toMutableList()
-
-            if (position != null) {
-                val item = ItemsList.flow.value[position]
-                items.removeAt(position)
+            if (pos != null) {
+                val item = ItemsList.flow.value[pos]
+                items.removeAt(pos)
                 items.add(
-                    position, item.copy(
+                    pos, item.copy(
                         name = nameText.text.toString(),
                         value = valueText.text.toString().toLong(),
                         color = Color.rgb(
                             red.text.toString().toInt(),
                             green.text.toString().toInt(),
                             blue.text.toString().toInt()
-                        )
+                        ),
+                        icon = iconRes
                     )
                 )
             } else {
@@ -72,7 +116,8 @@ class EditDialogFragment : DialogFragment(R.layout.layout_item_creation) {
                             red.text.toString().toInt(),
                             green.text.toString().toInt(),
                             blue.text.toString().toInt()
-                        )
+                        ),
+                        icon = iconRes
                     )
                 )
             }
