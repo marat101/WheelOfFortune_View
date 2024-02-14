@@ -5,10 +5,14 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import ru.marat.roulette.Item
 import ru.marat.roulette.ItemDirection
 import ru.marat.roulette.R
 import ru.marat.roulette.WheelOfFortuneView
+import ru.marat.roulette.fragments.other.ItemsList
 
 class WheelFragment : Fragment(R.layout.fragment_wheel) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -16,13 +20,17 @@ class WheelFragment : Fragment(R.layout.fragment_wheel) {
         val wheelOfFortune = view.findViewById<WheelOfFortuneView>(R.id.wheel)
         val spinBtn = view.findViewById<Button>(R.id.spin_btn)
         val itemsBtn = view.findViewById<Button>(R.id.items_btn)
-
         itemsBtn.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .addToBackStack("whl")
-                .add(R.id.main_container,ItemsFragment::class.java,null)
+                .add(R.id.main_container, ItemsFragment::class.java, null)
                 .hide(this)
                 .commit()
+        }
+        lifecycleScope.launch {
+            ItemsList.flow.collect {
+                wheelOfFortune.items = it
+            }
         }
 
         //        wheelOfFortune.items = listOf(
@@ -42,16 +50,16 @@ class WheelFragment : Fragment(R.layout.fragment_wheel) {
 //            Item(name = "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO", 77, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
 //        )
 
-        wheelOfFortune.items = listOf(
-            Item("Android", 320, Color.WHITE, R.drawable.android),
-            Item(
-                "какой-то длинный текст",
-                320,
-                Color.rgb((0..255).random(), (0..255).random(), (0..255).random()),
-                direction = ItemDirection.ALONG
-            ),
-            Item("Apple", 320, Color.LTGRAY, R.drawable.apple),
-        )
+//        wheelOfFortune.items = listOf(
+//            Item("Android", 320, Color.WHITE, R.drawable.android),
+//            Item(
+//                "какой-то длинный текст",
+//                320,
+//                Color.rgb((0..255).random(), (0..255).random(), (0..255).random()),
+//                direction = ItemDirection.ALONG
+//            ),
+//            Item("Apple", 320, Color.LTGRAY, R.drawable.apple),
+//        )
 
         spinBtn.setOnClickListener {
             wheelOfFortune.run {

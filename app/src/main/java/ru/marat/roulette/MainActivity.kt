@@ -1,8 +1,12 @@
 package ru.marat.roulette
 
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import ru.marat.roulette.fragments.WheelFragment
+import ru.marat.roulette.fragments.other.ItemsList
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -12,6 +16,20 @@ class MainActivity : AppCompatActivity() {
             .replace(R.id.main_container, WheelFragment::class.java, null)
             .commit()
 
+        lifecycleScope.launch {
+            ItemsList.flow.emit(
+                listOf(
+                    Item("Android", 320, Color.WHITE, R.drawable.android),
+                    Item(
+                        "какой-то длинный текст",
+                        320,
+                        Color.rgb((0..255).random(), (0..255).random(), (0..255).random()),
+                        direction = ItemDirection.ALONG
+                    ),
+                    Item("Apple", 320, Color.LTGRAY, R.drawable.apple),
+                )
+            )
+        }
 //        randomColorBtn.setOnClickListener {
 //            val r = (0..255).random()
 //            val g = (0..255).random()

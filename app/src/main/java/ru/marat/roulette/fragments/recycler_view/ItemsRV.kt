@@ -1,17 +1,22 @@
-package ru.marat.roulette.fragments
+package ru.marat.roulette.fragments.recycler_view
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import ru.marat.roulette.Item
 import ru.marat.roulette.R
 
 @SuppressLint("NotifyDataSetChanged")
-class ItemsRV(val onEditClick: () -> Unit) : RecyclerView.Adapter<ItemsRV.ItemVH>() {
+class ItemsRV(
+    val onEditClick: (Int) -> Unit,
+    val onDeleteClick: (Item) -> Unit
+) : RecyclerView.Adapter<ItemsRV.ItemVH>() {
 
     var list = listOf<Item>()
         set(value) {
@@ -37,12 +42,29 @@ class ItemsRV(val onEditClick: () -> Unit) : RecyclerView.Adapter<ItemsRV.ItemVH
             val value = view.findViewById<TextView>(R.id.item_value)
             val color = view.findViewById<View>(R.id.item_color)
             val icon = view.findViewById<ImageView>(R.id.item_icon)
+            val editBtn = view.findViewById<Button>(R.id.edit_btn)
+            val deleteBtn = view.findViewById<Button>(R.id.delete_btn)
             val item = list[position]
 
             name.text = item.name
             value.text = item.value.toString()
             color.setBackgroundColor(item.color)
-            item.icon?.let { icon.setImageResource(it) }
+            color.foreground = ResourcesCompat.getDrawable(
+                view.context.resources,
+                R.drawable.border,
+                view.context.theme
+            )
+
+            if (item.icon != null)
+                icon.setImageResource(item.icon)
+            else icon.setImageResource(R.drawable.baseline_close_24)
+
+            editBtn.setOnClickListener {
+                onEditClick(position)
+            }
+            deleteBtn.setOnClickListener {
+                onDeleteClick(item)
+            }
         }
     }
 }

@@ -3,9 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginHorizontal="10dp"
+    android:layout_marginVertical="4dp"
+    android:background="@drawable/border"
     android:orientation="vertical"
-    android:paddingHorizontal="16dp"
-    android:paddingVertical="8dp">
+    android:paddingHorizontal="6dp"
+    android:paddingVertical="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,30 +20,18 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:ellipsize="end"
             android:hint="name"
             android:maxLines="1"
             android:textSize="20sp" />
 
         <TextView
             android:id="@+id/item_value"
-            android:layout_width="120dp"
+            android:layout_width="80dp"
             android:layout_height="match_parent"
             android:hint="value"
             android:maxLines="1"
-            android:textSize="20sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:hint="icon"
-            android:maxLines="1"
+            android:paddingStart="4dp"
             android:textSize="20sp" />
 
         <ImageView
@@ -52,13 +43,6 @@
             android:padding="3dp"
             tools:src="@drawable/android" />
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:hint="color"
-            android:maxLines="1"
-            android:textSize="20sp" />
         <View
             android:id="@+id/item_color"
             android:layout_width="36dp"
@@ -66,5 +50,26 @@
             android:layout_marginEnd="6dp"
             android:background="@drawable/border"
             android:padding="3dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/edit_btn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="edit" />
+
+        <Button
+            android:id="@+id/delete_btn"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="delete" />
     </LinearLayout>
 </LinearLayout>
