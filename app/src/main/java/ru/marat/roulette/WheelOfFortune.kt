@@ -131,15 +131,17 @@ class WheelOfFortune(private val context: Context) {
         )
             drawWithLayer {
                 rotate(startAngle + (sweepAngle / 2f), center, center)
-                item.icon?.let {
-                    drawWithLayer { // todo перенести в отдельную функцию
-                        ResourcesCompat.getDrawable(context.resources, it, context.theme)?.apply {
-                            setBounds(0, 0, iconsSize.roundToInt(), iconsSize.roundToInt())
-                            translate(center - (iconsSize / 2f), edgePadding)
-                            draw(this@drawItemContent)
+                if (item.direction == ItemDirection.ACROSS)
+                    item.icon?.let {
+                        drawWithLayer { // todo перенести в отдельную функцию
+                            ResourcesCompat.getDrawable(context.resources, it, context.theme)
+                                ?.apply {
+                                    setBounds(0, 0, iconsSize.roundToInt(), iconsSize.roundToInt())
+                                    translate(center - (iconsSize / 2f), edgePadding)
+                                    draw(this@drawItemContent)
+                                }
                         }
                     }
-                }
 
                 if (item.name.isNotBlank())
                     drawItemText(item, if (item.icon == null) 0f else iconsSize, sweepAngle)
