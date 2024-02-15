@@ -1,17 +1,13 @@
 package ru.marat.roulette.fragments
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import ru.marat.roulette.Item
-import ru.marat.roulette.ItemDirection
 import ru.marat.roulette.R
-import ru.marat.roulette.WheelOfFortuneView
+import ru.marat.roulette.wheel_of_fortune.WheelOfFortuneView
 import ru.marat.roulette.fragments.other.ItemsList
 
 class WheelFragment : Fragment(R.layout.fragment_wheel) {

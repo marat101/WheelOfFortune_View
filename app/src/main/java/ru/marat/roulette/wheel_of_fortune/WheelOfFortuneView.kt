@@ -1,16 +1,13 @@
-package ru.marat.roulette
+package ru.marat.roulette.wheel_of_fortune
 
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffXfermode
 import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.ColorInt
-import androidx.core.graphics.withSave
 import androidx.dynamicanimation.animation.FloatValueHolder
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
@@ -29,7 +26,6 @@ class WheelOfFortuneView @JvmOverloads constructor(
     private val pointerPaint = Paint()
 
     private val scope = CoroutineScope(Dispatchers.Main)
-    private val wheel = WheelOfFortune(context)
     private var pointerPath: Path? = null
 
     val springForce = SpringForce(166f).apply {//fixme private
@@ -58,10 +54,15 @@ class WheelOfFortuneView @JvmOverloads constructor(
 
     var items: List<Item> = listOf()
         set(value) {
-            wheel.items = value
             field = value
+            this.wheel.invalidate()
             invalidate()
         }
+
+    private val wheel = WheelOfFortune(context) { wheelSize -> items.map {
+            it.run { measureItem(wheelSize) }
+        }
+    }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
@@ -73,12 +74,13 @@ class WheelOfFortuneView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        canvas.drawWithLayer {
-            rotate(animatedValue.value, wheel.center, wheel.center)
-            wheel.bitmap?.let { drawBitmap(it, 0f, 0f, paint) }
-        }
-        if (items.isNotEmpty())
+        if (items.isNotEmpty()) {
+            canvas.drawWithLayer {
+                rotate(animatedValue.value, wheel.center, wheel.center)
+                wheel.bitmap?.let { drawBitmap(it, 0f, 0f, paint) }
+            }
             canvas.drawPointer()
+        }
     }
 
     private fun Canvas.drawPointer() {
@@ -87,7 +89,7 @@ class WheelOfFortuneView @JvmOverloads constructor(
                 drawPath(it, pointerPaint.apply {
                     color = Color.BLACK
                 })
-                scale(0.8f, 0.8f, wheel.center ,0f)
+                scale(0.8f, 0.8f, wheel.center, 0f)
                 drawPath(
                     it,
                     pointerPaint.apply {

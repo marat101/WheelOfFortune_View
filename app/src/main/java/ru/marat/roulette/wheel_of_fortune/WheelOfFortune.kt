@@ -1,7 +1,6 @@
-package ru.marat.roulette
+package ru.marat.roulette.wheel_of_fortune
 
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -13,15 +12,19 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.text.TextUtils
-import androidx.annotation.Px
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.ColorUtils
-import androidx.core.graphics.drawable.toBitmap
+import ru.marat.roulette.wheel_of_fortune.measurements.checkOutOfBounds
+import ru.marat.roulette.wheel_of_fortune.measurements.measureText
+import ru.marat.roulette.wheel_of_fortune.measurements.measureWidth
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
 
-class WheelOfFortune(private val context: Context) {
+class WheelOfFortune(
+    private val context: Context,
+    private val onMeasureItems: (wheelSize: Int) -> List<MeasuredItem>
+) {
 
     companion object {
         const val STROKE_WIDTH = 2.5f
@@ -37,7 +40,6 @@ class WheelOfFortune(private val context: Context) {
         color = Color.BLACK
         style = Paint.Style.FILL
         isAntiAlias = true
-        this.textSize = 16f.spToPx(context)
     }
 
     var iconsSize = 0f
@@ -61,6 +63,8 @@ class WheelOfFortune(private val context: Context) {
         private set(value) {
             center = value / 2f
             iconsSize = value / 14f
+            edgePadding = center / 12f
+            paddingCenter = center / 5f
             field = value
         }
 
@@ -71,7 +75,7 @@ class WheelOfFortune(private val context: Context) {
     var bitmap: Bitmap? = null
         private set
 
-    var items: List<Item> = listOf()
+    private var items: List<MeasuredItem> = listOf()
         set(value) {
             totalValue = 0L
             value.forEach { totalValue += it.value }
@@ -94,7 +98,7 @@ class WheelOfFortune(private val context: Context) {
         }
     }
 
-    private fun Canvas.drawItemArc(item: Item, startAngle: Float, sweepAngle: Float) {
+    private fun Canvas.drawItemArc(item: MeasuredItem, startAngle: Float, sweepAngle: Float) {
         drawWithLayer(paint = paint.apply { xfermode = porterDuffXfermode }) {
             canvas?.rotate(-90f, center, center)
             drawArc(
@@ -122,7 +126,7 @@ class WheelOfFortune(private val context: Context) {
         }
     }
 
-    private fun Canvas.drawItemContent(item: Item, startAngle: Float, sweepAngle: Float) {
+    private fun Canvas.drawItemContent(item: MeasuredItem, startAngle: Float, sweepAngle: Float) {
         if (!checkOutOfBounds(
                 center - (iconsSize + edgePadding),
                 iconsSize,
@@ -143,75 +147,68 @@ class WheelOfFortune(private val context: Context) {
                         }
                     }
 
-                if (item.name.isNotBlank())
+                if (!item.text.isNullOrBlank())
                     drawItemText(item, if (item.icon == null) 0f else iconsSize, sweepAngle)
             }
     }
 
 
-    private fun Canvas.drawItemText(item: Item, iconHeight: Float, sweepAngle: Float) {
-        val textColor = getTextColor(item.color) // временно
-        val staticLayout = StaticLayout.Builder.obtain(
-            item.name,
-            0,
-            item.name.length,
-            textPaint.apply { color = textColor },
-            if (item.direction == ItemDirection.ACROSS)
-                defaultTextLayoutWidth.roundToInt()
-            else (center - (edgePadding + paddingCenter)).roundToInt()
-        ).apply {
-            if (item.direction == ItemDirection.ACROSS)
-                setAlignment(Layout.Alignment.ALIGN_CENTER)
-            else {
-                setAlignment(Layout.Alignment.ALIGN_NORMAL)
-                setMaxLines(1)
-                setEllipsize(TextUtils.TruncateAt.END)
-            }
-        }.build()
+    private fun Canvas.drawItemText(item: MeasuredItem, iconHeight: Float, sweepAngle: Float) {
+        val textColor = getTextColor(item.color) // временно(или нет)
+        val isAcross = item.direction == ItemDirection.ACROSS
+        val staticLayout = measureText(
+            text = item.text!!,
+            paint = textPaint.apply {
+                color = textColor
+                textSize = item.textSize
+            },
+            width = if (isAcross) defaultTextLayoutWidth.roundToInt()
+            else (center - (edgePadding + paddingCenter)).roundToInt().coerceAtLeast(0),
+            align = if (isAcross) Layout.Alignment.ALIGN_CENTER else Layout.Alignment.ALIGN_NORMAL,
+            maxLines = if (isAcross) Int.MAX_VALUE else 1
+        )
 
-        val outOfBound = if (item.direction == ItemDirection.ACROSS)
-            checkOutOfBounds(
-                center - (staticLayout.height + iconHeight + edgePadding),
-                staticLayout.getMaxLineWidth(),
-                sweepAngle.absoluteValue
-            )
-        else
-            checkOutOfBounds(
-                center - (staticLayout.width + edgePadding),
-                (staticLayout.getLineBaseline(0)).toFloat(),
-                sweepAngle.absoluteValue
-            )
+
+        val outOfBound = if (isAcross) checkOutOfBounds(
+            center - (staticLayout.height + iconHeight + edgePadding),
+            staticLayout.getMaxLineWidth(),
+            sweepAngle.absoluteValue
+        ) else checkOutOfBounds(
+            center - (staticLayout.width + edgePadding),
+            (staticLayout.getLineBaseline(0)).toFloat(),
+            sweepAngle.absoluteValue
+        )
 
         if (!outOfBound)
             drawWithLayer {
-                if (item.direction == ItemDirection.ACROSS)
+                if (isAcross)
                     translate(center - (staticLayout.width / 2f), edgePadding + iconHeight)
                 else {
-                    rotate(-90f, center, staticLayout.height / 2f)
-                    translate(center - staticLayout.width, edgePadding - (staticLayout.height / 2))
+                    rotate(-90f, center, 0f)
+                    translate(
+                        center - (staticLayout.width + edgePadding),
+                        -(staticLayout.height / 2f)
+                    )
                 }
                 staticLayout.draw(this)
             }
     }
 
-    fun getTextColor(color: Int): Int {
-        return if (ColorUtils.calculateLuminance(color) > 0.5) {
-            Color.BLACK // If it's a light color
-        } else {
-            Color.WHITE // If it's a dark color
-        }
-    }
-
     fun prepareBitmap(size: Int) {
-        require(size > 0) { "bitmap size must be greater than 0" }
+        require(size > 0) { "bitmap size must be > 0" }
         this.size = size
         bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
         canvas = Canvas(bitmap!!)
+        items = onMeasureItems(size)
         canvas?.drawWheel()
     }
 
     fun Long.toSweepAngle(reversed: Boolean = false): Float {
         val sweep = (this.toDouble() / totalValue.toDouble()) * 360.0
         return (if (reversed) -sweep else sweep).toFloat()
+    }
+
+    fun invalidate() {
+        items = onMeasureItems(size)
     }
 }

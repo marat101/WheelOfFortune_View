@@ -15,7 +15,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
-import ru.marat.roulette.Item
+import ru.marat.roulette.wheel_of_fortune.Item
 import ru.marat.roulette.R
 import ru.marat.roulette.fragments.other.ItemsList
 import ru.marat.roulette.fragments.recycler_view.IconsRVA
@@ -40,7 +40,7 @@ class EditDialogFragment : DialogFragment(R.layout.layout_item_creation) {
 
         pos?.let { position ->
             val item = ItemsList.flow.value[position]
-            nameText.setText(item.name)
+            nameText.setText(item.text)
             valueText.setText(item.value.toString())
             red.setText(Color.red(item.color).toString())
             green.setText(Color.green(item.color).toString())
@@ -97,7 +97,7 @@ class EditDialogFragment : DialogFragment(R.layout.layout_item_creation) {
                 items.removeAt(pos)
                 items.add(
                     pos, item.copy(
-                        name = nameText.text.toString(),
+                        text = nameText.text.toString(),
                         value = valueText.text.toString().toLong(),
                         color = Color.rgb(
                             red.text.toString().toInt(),
@@ -110,7 +110,7 @@ class EditDialogFragment : DialogFragment(R.layout.layout_item_creation) {
             } else {
                 items.add(
                     Item(
-                        name = nameText.text.toString(),
+                        text = nameText.text.toString(),
                         value = valueText.text.toString().toLong(),
                         color = Color.rgb(
                             red.text.toString().toInt(),

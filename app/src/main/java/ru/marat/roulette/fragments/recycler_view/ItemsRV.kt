@@ -9,7 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
-import ru.marat.roulette.Item
+import ru.marat.roulette.wheel_of_fortune.Item
 import ru.marat.roulette.R
 
 @SuppressLint("NotifyDataSetChanged")
@@ -46,7 +46,7 @@ class ItemsRV(
             val deleteBtn = view.findViewById<Button>(R.id.delete_btn)
             val item = list[position]
 
-            name.text = item.name
+            name.text = item.text
             value.text = item.value.toString()
             color.setBackgroundColor(item.color)
             color.foreground = ResourcesCompat.getDrawable(

@@ -6,7 +6,7 @@
     android:padding="16dp"
     android:orientation="vertical">
 
-    <ru.marat.roulette.WheelOfFortuneView
+    <ru.marat.roulette.wheel_of_fortune.WheelOfFortuneView
         android:id="@+id/wheel"
         android:layout_width="match_parent"
         android:layout_height="0dp"

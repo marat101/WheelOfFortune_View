@@ -1,10 +1,10 @@
-package ru.marat.roulette
+package ru.marat.roulette.wheel_of_fortune
 
 import android.content.Context
+import android.graphics.Color
 import android.text.StaticLayout
-import android.util.DisplayMetrics
 import android.util.TypedValue
-import android.view.View
+import androidx.core.graphics.ColorUtils
 import kotlin.math.roundToInt
 
 
@@ -34,4 +34,12 @@ fun StaticLayout.getMaxLineWidth(): Float {
 
 fun Float.roundDpToPx(context: Context): Int {
     return dpToPx(context).roundToInt()
+}
+
+fun getTextColor(color: Int): Int {
+    return if (ColorUtils.calculateLuminance(color) > 0.5) {
+        Color.BLACK // If it's a light color
+    } else {
+        Color.WHITE // If it's a dark color
+    }
 }

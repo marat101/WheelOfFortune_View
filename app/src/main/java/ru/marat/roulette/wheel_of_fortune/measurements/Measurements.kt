@@ -1,4 +1,4 @@
-package ru.marat.roulette
+package ru.marat.roulette.wheel_of_fortune.measurements
 
 import kotlin.math.PI
 import kotlin.math.acos

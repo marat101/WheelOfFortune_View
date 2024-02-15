@@ -1,4 +1,4 @@
-package ru.marat.roulette
+package ru.marat.roulette.wheel_of_fortune
 
 import android.graphics.Canvas
 import android.graphics.Paint
