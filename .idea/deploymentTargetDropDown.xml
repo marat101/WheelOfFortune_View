@@ -9,13 +9,14 @@
               <type value="RUNNING_DEVICE_TARGET" />
               <deviceKey>
                 <Key>
-                  <type value="SERIAL_NUMBER" />
-                  <value value="9eee2afb" />
+                  <type value="VIRTUAL_DEVICE_PATH" />
+                  <value value="$USER_HOME$/.android/avd/Pixel_C_API_33.avd" />
                 </Key>
               </deviceKey>
             </Target>
           </runningDeviceTargetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-02-15T17:38:35.022432Z" />
+          <timeTargetWasSelectedWithDropDown value="2024-02-16T12:21:01.079137Z" />
+          <multipleDevicesSelectedInDropDown value="true" />
           <runningDeviceTargetsSelectedWithDialog>
             <Target>
               <type value="RUNNING_DEVICE_TARGET" />
@@ -23,6 +24,15 @@
                 <Key>
                   <type value="VIRTUAL_DEVICE_PATH" />
                   <value value="$USER_HOME$/.android/avd/Pixel_3_API_33.avd" />
+                </Key>
+              </deviceKey>
+            </Target>
+            <Target>
+              <type value="RUNNING_DEVICE_TARGET" />
+              <deviceKey>
+                <Key>
+                  <type value="VIRTUAL_DEVICE_PATH" />
+                  <value value="$USER_HOME$/.android/avd/Pixel_C_API_33.avd" />
                 </Key>
               </deviceKey>
             </Target>
@@ -34,15 +44,6 @@
                 <Key>
                   <type value="VIRTUAL_DEVICE_PATH" />
                   <value value="$USER_HOME$/.android/avd/Pixel_3_API_33.avd" />
-                </Key>
-              </deviceKey>
-            </Target>
-            <Target>
-              <type value="QUICK_BOOT_TARGET" />
-              <deviceKey>
-                <Key>
-                  <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="$USER_HOME$/.android/avd/Pixel_C_API_27.avd" />
                 </Key>
               </deviceKey>
             </Target>

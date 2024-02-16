@@ -9,11 +9,9 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.RectF
 import android.text.Layout
-import android.text.StaticLayout
 import android.text.TextPaint
-import android.text.TextUtils
+import android.util.Log
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.ColorUtils
 import ru.marat.roulette.wheel_of_fortune.measurements.checkOutOfBounds
 import ru.marat.roulette.wheel_of_fortune.measurements.measureText
 import ru.marat.roulette.wheel_of_fortune.measurements.measureWidth
@@ -42,8 +40,6 @@ class WheelOfFortune(
         isAntiAlias = true
     }
 
-    var iconsSize = 0f
-        private set
     var edgePadding = 10f.dpToPx(context)
         set(value) {
             field = value
@@ -62,7 +58,6 @@ class WheelOfFortune(
     var size = 0
         private set(value) {
             center = value / 2f
-            iconsSize = value / 14f
             edgePadding = center / 12f
             paddingCenter = center / 5f
             field = value
@@ -128,28 +123,31 @@ class WheelOfFortune(
 
     private fun Canvas.drawItemContent(item: MeasuredItem, startAngle: Float, sweepAngle: Float) {
         if (!checkOutOfBounds(
-                center - (iconsSize + edgePadding),
-                iconsSize,
+                center - ((item.iconRect?.height() ?: 0) + edgePadding),
+                item.iconRect?.width()?.toFloat() ?: 0f,
                 sweepAngle.absoluteValue
             ) || item.icon == null
-        )
-            drawWithLayer {
-                rotate(startAngle + (sweepAngle / 2f), center, center)
-                if (item.direction == ItemDirection.ACROSS)
-                    item.icon?.let {
-                        drawWithLayer { // todo перенести в отдельную функцию
-                            ResourcesCompat.getDrawable(context.resources, it, context.theme)
-                                ?.apply {
-                                    setBounds(0, 0, iconsSize.roundToInt(), iconsSize.roundToInt())
-                                    translate(center - (iconsSize / 2f), edgePadding)
-                                    draw(this@drawItemContent)
-                                }
+        ) drawWithLayer {
+            rotate(startAngle + (sweepAngle / 2f), center, center)
+            if (item.direction == ItemDirection.ACROSS && item.icon != null && item.iconRect != null) {
+                drawWithLayer { // todo перенести в отдельную функцию
+                    ResourcesCompat.getDrawable(context.resources, item.icon, context.theme)
+                        ?.apply {
+                            bounds = item.iconRect
+                            translate(center - (item.iconRect.height() / 2f), edgePadding)
+                            draw(this@drawItemContent)
                         }
-                    }
-
-                if (!item.text.isNullOrBlank())
-                    drawItemText(item, if (item.icon == null) 0f else iconsSize, sweepAngle)
+                }
             }
+
+            if (!item.text.isNullOrBlank())
+                drawItemText(
+                    item,
+                    if (item.icon == null && item.iconRect == null)
+                        0f else item.iconRect!!.height().toFloat(),
+                    sweepAngle
+                )
+        }
     }
 
 
@@ -160,7 +158,7 @@ class WheelOfFortune(
             text = item.text!!,
             paint = textPaint.apply {
                 color = textColor
-                textSize = item.textSize
+                textSize = item.textSize ?: 0f
             },
             width = if (isAcross) defaultTextLayoutWidth.roundToInt()
             else (center - (edgePadding + paddingCenter)).roundToInt().coerceAtLeast(0),

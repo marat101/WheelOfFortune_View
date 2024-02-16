@@ -59,9 +59,8 @@ class WheelOfFortuneView @JvmOverloads constructor(
             invalidate()
         }
 
-    private val wheel = WheelOfFortune(context) { wheelSize -> items.map {
-            it.run { measureItem(wheelSize) }
-        }
+    private val wheel = WheelOfFortune(context) { wheelSize ->
+        items.map { it.measureItem(context, wheelSize) }
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {

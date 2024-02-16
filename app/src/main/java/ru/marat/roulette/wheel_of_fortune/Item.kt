@@ -1,9 +1,13 @@
 package ru.marat.roulette.wheel_of_fortune
 
+import android.content.Context
+import android.graphics.Rect
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import ru.marat.roulette.wheel_of_fortune.measurements.Fraction
+import ru.marat.roulette.wheel_of_fortune.measurements.FractionSize
 import ru.marat.roulette.wheel_of_fortune.measurements.Measurable
+import ru.marat.roulette.wheel_of_fortune.measurements.MeasurableRect
 
 data class Item(
     val text: String? = null,
@@ -11,15 +15,17 @@ data class Item(
     @ColorInt val color: Int,
     @DrawableRes val icon: Int? = null,
     val direction: ItemDirection = ItemDirection.ACROSS,
-    val textSize: Measurable = Fraction(.03f)
+    val textSize: Measurable = Fraction(.03f),
+    val iconSize: MeasurableRect = FractionSize(0.05f, 0.05f)
 ) {
-    fun WheelOfFortuneView.measureItem(wheelSize: Int): MeasuredItem = MeasuredItem(
-        this@Item.text,
-        this@Item.value,
-        this@Item.color,
-        this@Item.icon,
-        this@Item.direction,
-        this@Item.textSize.measure(context, wheelSize)
+    internal fun measureItem(context: Context, wheelSize: Int): MeasuredItem = MeasuredItem(
+        text,
+        value,
+        color,
+        icon,
+        direction,
+        if (!text.isNullOrBlank()) textSize.measure(context, wheelSize) else null,
+        if (icon != null) iconSize.measure(context, wheelSize) else null
     )
 }
 
@@ -29,7 +35,8 @@ data class MeasuredItem(
     @ColorInt val color: Int,
     @DrawableRes val icon: Int? = null,
     val direction: ItemDirection,
-    val textSize: Float
+    val textSize: Float? = null,
+    val iconRect: Rect? = null
 )
 
 enum class ItemDirection {
