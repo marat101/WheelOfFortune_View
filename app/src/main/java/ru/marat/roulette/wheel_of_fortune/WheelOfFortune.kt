@@ -9,8 +9,11 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.RectF
 import android.text.Layout
+import android.text.StaticLayout
 import android.text.TextPaint
+import android.util.Log
 import androidx.core.content.res.ResourcesCompat
+import ru.marat.roulette.R
 import ru.marat.roulette.wheel_of_fortune.measurements.checkOutOfBounds
 import ru.marat.roulette.wheel_of_fortune.measurements.measureText
 import ru.marat.roulette.wheel_of_fortune.measurements.measureWidth
@@ -132,13 +135,16 @@ class WheelOfFortune(
     private fun Canvas.drawItemText(item: MeasuredItem, sweepAngle: Float) {
         val textColor = getTextColor(item.color) // временно(или нет)
         val isAcross = item.direction == ItemDirection.ACROSS
-        val iconHeight = (item.iconRect?.height() ?: 0) + item.spacing
+        val edgeOffset =
+            if (item.icon != null) (item.iconRect?.height() ?: 0) + item.spacing + item.edgePadding
+            else item.edgePadding
+
         val textLayoutWidth = (if (isAcross)
-            measureWidth(center, center - (item.edgePadding + iconHeight + item.spacing))
+            measureWidth(center, center - edgeOffset)
         else
             (center - (item.edgePadding + item.centerPadding))).coerceAtLeast(0f).roundToInt()
 
-        val staticLayout = measureText(
+        var staticLayout: StaticLayout? = measureText(
             text = item.text!!,
             paint = textPaint.apply {
                 color = textColor
@@ -150,20 +156,27 @@ class WheelOfFortune(
         )
 
 
-        val outOfBound = if (isAcross) checkOutOfBounds(
-            center - (staticLayout.height + iconHeight + item.edgePadding),
-            staticLayout.getMaxLineWidth(),
-            sweepAngle.absoluteValue
-        ) else checkOutOfBounds(
-            center - (staticLayout.width + item.edgePadding),
+        val outOfBound = if (isAcross) {
+            staticLayout =
+                staticLayout?.checkLinesOutOfBound(
+                    item,
+                    textLayoutWidth,
+                    textColor,
+                    sweepAngle.absoluteValue,
+                    edgeOffset
+                )
+            staticLayout == null
+        } else checkOutOfBounds(
+            center - (staticLayout!!.width + item.edgePadding),
             (staticLayout.getLineBaseline(0)).toFloat(),
             sweepAngle.absoluteValue
         )
 
         if (!outOfBound)
             drawWithLayer {
+                staticLayout!!
                 if (isAcross)
-                    translate(center - (staticLayout.width / 2f), item.edgePadding + iconHeight)
+                    translate(center - (staticLayout.width / 2f), edgeOffset)
                 else {
                     rotate(-90f, center, 0f)
                     translate(
@@ -174,6 +187,45 @@ class WheelOfFortune(
                 staticLayout.draw(this)
             }
     }
+
+    private fun StaticLayout.checkLinesOutOfBound(
+        item: MeasuredItem,
+        textLayoutWidth: Int,
+        textColor: Int,
+        sweepAngle: Float,
+        edgeOffset: Float
+    ): StaticLayout? {
+        var maxLines: Int? = null
+        if (sweepAngle >= 180f) {
+            val availableHeight = center- edgeOffset
+            if (height <= availableHeight) return this
+            maxLines = getLineForVertical(availableHeight.roundToInt())
+        } else for (i in 0..<lineCount) {
+            val lineWidth = getLineWidth(i)
+            val lineHeight = getLineBottom(i)
+            if (
+                checkOutOfBounds(
+                    (center - (lineHeight + edgeOffset)).coerceAtLeast(0f),
+                    lineWidth,
+                    sweepAngle
+                )
+            ) break
+            maxLines = i + 1
+        }
+        if (item.icon == R.drawable.android) Log.e("TAGTAG MAXLINES", maxLines.toString())
+        if (maxLines == lineCount) return this
+        return if (maxLines != null) measureText(
+            text = item.text!!,
+            paint = textPaint.apply {
+                color = textColor
+                textSize = item.textSize ?: 0f
+            },
+            width = textLayoutWidth,
+            align = Layout.Alignment.ALIGN_CENTER,
+            maxLines = maxLines
+        ) else null
+    }
+
 
     fun prepareBitmap(size: Int) {
         require(size > 0) { "bitmap size must be > 0" }

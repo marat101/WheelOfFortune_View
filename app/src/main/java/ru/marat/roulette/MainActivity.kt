@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             ItemsList.flow.emit(
                 listOf(
-                    WheelItem("Android", 320, Color.WHITE, R.drawable.android,),
+                    WheelItem("Androidddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", 320, Color.WHITE, R.drawable.android,),
                     WheelItem(
                         "какой-то длинный текст",
                         320,
