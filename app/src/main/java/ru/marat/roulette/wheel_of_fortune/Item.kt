@@ -11,7 +11,7 @@ import ru.marat.roulette.wheel_of_fortune.measurements.MeasurableRect
 
 data class Item(
     val text: String? = null,
-    val value: Long,
+    val weight: Long,
     @ColorInt val color: Int,
     @DrawableRes val icon: Int? = null,
     val direction: ItemDirection = ItemDirection.ACROSS,
@@ -20,7 +20,7 @@ data class Item(
 ) {
     internal fun measureItem(context: Context, wheelSize: Int): MeasuredItem = MeasuredItem(
         text,
-        value,
+        weight,
         color,
         icon,
         direction,

@@ -104,7 +104,7 @@ class WheelOfFortuneView @JvmOverloads constructor(
         wheel.run {
             var startAngle = 0f
             items.forEach {
-                val sweepAngle = it.value.toSweepAngle()
+                val sweepAngle = it.weight.toSweepAngle()
                 if (this@getColor in startAngle..(startAngle + sweepAngle)) return it.color
                 startAngle += sweepAngle
             }

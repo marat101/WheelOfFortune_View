@@ -41,7 +41,7 @@ class EditDialogFragment : DialogFragment(R.layout.layout_item_creation) {
         pos?.let { position ->
             val item = ItemsList.flow.value[position]
             nameText.setText(item.text)
-            valueText.setText(item.value.toString())
+            valueText.setText(item.weight.toString())
             red.setText(Color.red(item.color).toString())
             green.setText(Color.green(item.color).toString())
             blue.setText(Color.blue(item.color).toString())
@@ -98,7 +98,7 @@ class EditDialogFragment : DialogFragment(R.layout.layout_item_creation) {
                 items.add(
                     pos, item.copy(
                         text = nameText.text.toString(),
-                        value = valueText.text.toString().toLong(),
+                        weight = valueText.text.toString().toLong(),
                         color = Color.rgb(
                             red.text.toString().toInt(),
                             green.text.toString().toInt(),
@@ -111,7 +111,7 @@ class EditDialogFragment : DialogFragment(R.layout.layout_item_creation) {
                 items.add(
                     Item(
                         text = nameText.text.toString(),
-                        value = valueText.text.toString().toLong(),
+                        weight = valueText.text.toString().toLong(),
                         color = Color.rgb(
                             red.text.toString().toInt(),
                             green.text.toString().toInt(),

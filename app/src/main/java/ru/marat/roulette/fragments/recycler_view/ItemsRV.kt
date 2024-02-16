@@ -47,7 +47,7 @@ class ItemsRV(
             val item = list[position]
 
             name.text = item.text
-            value.text = item.value.toString()
+            value.text = item.weight.toString()
             color.setBackgroundColor(item.color)
             color.foreground = ResourcesCompat.getDrawable(
                 view.context.resources,
