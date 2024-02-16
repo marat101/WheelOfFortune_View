@@ -9,16 +9,16 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
-import ru.marat.roulette.wheel_of_fortune.Item
+import ru.marat.roulette.wheel_of_fortune.WheelItem
 import ru.marat.roulette.R
 
 @SuppressLint("NotifyDataSetChanged")
 class ItemsRV(
     val onEditClick: (Int) -> Unit,
-    val onDeleteClick: (Item) -> Unit
+    val onDeleteClick: (WheelItem) -> Unit
 ) : RecyclerView.Adapter<ItemsRV.ItemVH>() {
 
-    var list = listOf<Item>()
+    var list = listOf<WheelItem>()
         set(value) {
             field = value
             notifyDataSetChanged()

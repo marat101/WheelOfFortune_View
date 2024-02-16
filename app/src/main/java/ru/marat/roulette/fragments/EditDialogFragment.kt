@@ -15,7 +15,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
-import ru.marat.roulette.wheel_of_fortune.Item
+import ru.marat.roulette.wheel_of_fortune.WheelItem
 import ru.marat.roulette.R
 import ru.marat.roulette.fragments.other.ItemsList
 import ru.marat.roulette.fragments.recycler_view.IconsRVA
@@ -98,7 +98,7 @@ class EditDialogFragment : DialogFragment(R.layout.layout_item_creation) {
                 items.add(
                     pos, item.copy(
                         text = nameText.text.toString(),
-                        weight = valueText.text.toString().toLong(),
+                        weight = valueText.text.toString().toInt(),
                         color = Color.rgb(
                             red.text.toString().toInt(),
                             green.text.toString().toInt(),
@@ -109,9 +109,9 @@ class EditDialogFragment : DialogFragment(R.layout.layout_item_creation) {
                 )
             } else {
                 items.add(
-                    Item(
+                    WheelItem(
                         text = nameText.text.toString(),
-                        weight = valueText.text.toString().toLong(),
+                        weight = valueText.text.toString().toInt(),
                         color = Color.rgb(
                             red.text.toString().toInt(),
                             green.text.toString().toInt(),

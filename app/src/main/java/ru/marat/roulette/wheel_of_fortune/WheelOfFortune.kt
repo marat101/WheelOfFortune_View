@@ -10,7 +10,6 @@ import android.graphics.PorterDuffXfermode
 import android.graphics.RectF
 import android.text.Layout
 import android.text.TextPaint
-import android.util.Log
 import androidx.core.content.res.ResourcesCompat
 import ru.marat.roulette.wheel_of_fortune.measurements.checkOutOfBounds
 import ru.marat.roulette.wheel_of_fortune.measurements.measureText
@@ -40,26 +39,11 @@ class WheelOfFortune(
         isAntiAlias = true
     }
 
-    var edgePadding = 10f.dpToPx(context)
-        set(value) {
-            field = value
-            canvas?.drawWheel()
-        }
-    var paddingCenter = 32f.dpToPx(context)
-        set(value) {
-            field = value
-            canvas?.drawWheel()
-        }
-
-    private var defaultTextLayoutWidth = 0f
-
     var center = 0f
         private set
     var size = 0
         private set(value) {
             center = value / 2f
-            edgePadding = center / 12f
-            paddingCenter = center / 5f
             field = value
         }
 
@@ -81,7 +65,6 @@ class WheelOfFortune(
 
     private fun Canvas.drawWheel() = drawWithLayer {
         if (items.size == 1) rotate(-180f, center, center)
-        defaultTextLayoutWidth = measureWidth(center, center - edgePadding)
         var startAngle = 0f
         items.forEach {
             val sweepAngle = it.value.toSweepAngle(true)
@@ -123,7 +106,7 @@ class WheelOfFortune(
 
     private fun Canvas.drawItemContent(item: MeasuredItem, startAngle: Float, sweepAngle: Float) {
         if (!checkOutOfBounds(
-                center - ((item.iconRect?.height() ?: 0) + edgePadding),
+                center - ((item.iconRect?.height() ?: 0) + item.edgePadding),
                 item.iconRect?.width()?.toFloat() ?: 0f,
                 sweepAngle.absoluteValue
             ) || item.icon == null
@@ -134,45 +117,45 @@ class WheelOfFortune(
                     ResourcesCompat.getDrawable(context.resources, item.icon, context.theme)
                         ?.apply {
                             bounds = item.iconRect
-                            translate(center - (item.iconRect.height() / 2f), edgePadding)
+                            translate(center - (item.iconRect.height() / 2f), item.edgePadding)
                             draw(this@drawItemContent)
                         }
                 }
             }
 
             if (!item.text.isNullOrBlank())
-                drawItemText(
-                    item,
-                    if (item.icon == null && item.iconRect == null)
-                        0f else item.iconRect!!.height().toFloat(),
-                    sweepAngle
-                )
+                drawItemText(item, sweepAngle)
         }
     }
 
 
-    private fun Canvas.drawItemText(item: MeasuredItem, iconHeight: Float, sweepAngle: Float) {
+    private fun Canvas.drawItemText(item: MeasuredItem, sweepAngle: Float) {
         val textColor = getTextColor(item.color) // временно(или нет)
         val isAcross = item.direction == ItemDirection.ACROSS
+        val iconHeight = (item.iconRect?.height() ?: 0) + item.spacing
+        val textLayoutWidth = (if (isAcross)
+            measureWidth(center, center - (item.edgePadding + iconHeight + item.spacing))
+        else
+            (center - (item.edgePadding + item.centerPadding))).coerceAtLeast(0f).roundToInt()
+
         val staticLayout = measureText(
             text = item.text!!,
             paint = textPaint.apply {
                 color = textColor
                 textSize = item.textSize ?: 0f
             },
-            width = if (isAcross) defaultTextLayoutWidth.roundToInt()
-            else (center - (edgePadding + paddingCenter)).roundToInt().coerceAtLeast(0),
+            width = textLayoutWidth,
             align = if (isAcross) Layout.Alignment.ALIGN_CENTER else Layout.Alignment.ALIGN_NORMAL,
             maxLines = if (isAcross) Int.MAX_VALUE else 1
         )
 
 
         val outOfBound = if (isAcross) checkOutOfBounds(
-            center - (staticLayout.height + iconHeight + edgePadding),
+            center - (staticLayout.height + iconHeight + item.edgePadding),
             staticLayout.getMaxLineWidth(),
             sweepAngle.absoluteValue
         ) else checkOutOfBounds(
-            center - (staticLayout.width + edgePadding),
+            center - (staticLayout.width + item.edgePadding),
             (staticLayout.getLineBaseline(0)).toFloat(),
             sweepAngle.absoluteValue
         )
@@ -180,11 +163,11 @@ class WheelOfFortune(
         if (!outOfBound)
             drawWithLayer {
                 if (isAcross)
-                    translate(center - (staticLayout.width / 2f), edgePadding + iconHeight)
+                    translate(center - (staticLayout.width / 2f), item.edgePadding + iconHeight)
                 else {
                     rotate(-90f, center, 0f)
                     translate(
-                        center - (staticLayout.width + edgePadding),
+                        center - (staticLayout.width + item.edgePadding),
                         -(staticLayout.height / 2f)
                     )
                 }
@@ -201,7 +184,7 @@ class WheelOfFortune(
         canvas?.drawWheel()
     }
 
-    fun Long.toSweepAngle(reversed: Boolean = false): Float {
+    fun Int.toSweepAngle(reversed: Boolean = false): Float {
         val sweep = (this.toDouble() / totalValue.toDouble()) * 360.0
         return (if (reversed) -sweep else sweep).toFloat()
     }

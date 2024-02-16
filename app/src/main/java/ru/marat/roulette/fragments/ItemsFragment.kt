@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
-import ru.marat.roulette.wheel_of_fortune.Item
+import ru.marat.roulette.wheel_of_fortune.WheelItem
 import ru.marat.roulette.R
 import ru.marat.roulette.fragments.other.ItemsList
 import ru.marat.roulette.fragments.recycler_view.ItemsRV
@@ -42,7 +42,7 @@ class ItemsFragment : Fragment(R.layout.fragment_items_list) {
         }
     }
 
-    fun onDelete(item: Item) {
+    fun onDelete(item: WheelItem) {
         lifecycleScope.launch {
             ItemsList.flow.emit(ItemsList.flow.value.filter { it != item })
         }

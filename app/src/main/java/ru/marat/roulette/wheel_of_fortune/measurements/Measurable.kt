@@ -38,7 +38,7 @@ interface MeasurableRect {
 }
 
 class DpSize(val width: Float, val height: Float) : MeasurableRect {
-    constructor(width: Int, height: Int) : this(width.toFloat(),height.toFloat())
+    constructor(width: Int, height: Int) : this(width.toFloat(), height.toFloat())
 
     override fun measure(context: Context, wheelSize: Int): Rect = Rect(
         0,
@@ -49,7 +49,7 @@ class DpSize(val width: Float, val height: Float) : MeasurableRect {
 }
 
 class PxSize(val width: Float, val height: Float) : MeasurableRect {
-    constructor(width: Int, height: Int) : this(width.toFloat(),height.toFloat())
+    constructor(width: Int, height: Int) : this(width.toFloat(), height.toFloat())
 
     override fun measure(context: Context, wheelSize: Int): Rect = Rect(
         0,
@@ -67,3 +67,17 @@ class FractionSize(val width: Float, val height: Float) : MeasurableRect {
         (wheelSize * height).roundToInt()
     )
 }
+
+fun Float.asDp() = Dp(this)
+
+fun Int.asDp() = toFloat().asDp()
+
+fun Float.asSp() = Sp(this)
+
+fun Int.asSp() = toFloat().asSp()
+
+fun Float.asPx() = Px(this)
+
+fun Int.asPx() = toFloat().asPx()
+
+fun Float.asFraction() = Fraction(this)

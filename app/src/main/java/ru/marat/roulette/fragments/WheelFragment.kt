@@ -29,7 +29,7 @@ class WheelFragment : Fragment(R.layout.fragment_wheel) {
             }
         }
 
-        //        wheelOfFortune.items = listOf(
+//        wheelOfFortune.items = listOf(
 //            Item(name = "красный", 2, Color.RED),
 ////            Item(name = "серый", 110, Color.GRAY),
 //            Item(name = "хз", 130, Color.rgb(123, 1, 77)),
@@ -44,17 +44,6 @@ class WheelFragment : Fragment(R.layout.fragment_wheel) {
 ////            Item(name = "aaa", 290, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
 ////            Item(name = "aaa", (0..255).random(), Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
 //            Item(name = "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO", 77, Color.rgb((0..255).random(),(0..255).random(),(0..255).random())),
-//        )
-
-//        wheelOfFortune.items = listOf(
-//            Item("Android", 320, Color.WHITE, R.drawable.android),
-//            Item(
-//                "какой-то длинный текст",
-//                320,
-//                Color.rgb((0..255).random(), (0..255).random(), (0..255).random()),
-//                direction = ItemDirection.ALONG
-//            ),
-//            Item("Apple", 320, Color.LTGRAY, R.drawable.apple),
 //        )
 
         spinBtn.setOnClickListener {

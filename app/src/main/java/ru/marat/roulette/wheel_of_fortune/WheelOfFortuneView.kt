@@ -52,7 +52,7 @@ class WheelOfFortuneView @JvmOverloads constructor(
         }
     }
 
-    var items: List<Item> = listOf()
+    var items: List<WheelItem> = listOf()
         set(value) {
             field = value
             this.wheel.invalidate()
