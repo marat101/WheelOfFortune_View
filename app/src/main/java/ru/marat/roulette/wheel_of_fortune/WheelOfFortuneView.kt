@@ -1,6 +1,7 @@
 package ru.marat.roulette.wheel_of_fortune
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -42,8 +43,7 @@ class WheelOfFortuneView @JvmOverloads constructor(
     val animation = SpringAnimation(animatedValue).apply { //fixme private
         spring = springForce
         minimumVisibleChange = 0.05f
-        addUpdateListener { _, value, _ ->
-            println("TAGTGA $value")
+        addUpdateListener { _, _, _ ->
             invalidate()
         }
         addEndListener { _, _, _, _ ->
@@ -56,8 +56,7 @@ class WheelOfFortuneView @JvmOverloads constructor(
     var items: List<WheelItem> = listOf()
         set(value) {
             field = value
-            if (wheel.size == 0)
-                wheel.setItems(value)
+            if (wheel.bitmap != null) wheel.setItems(value)
             invalidate()
         }
 
@@ -107,4 +106,5 @@ class WheelOfFortuneView @JvmOverloads constructor(
         }
         return Color.TRANSPARENT
     }
+    fun getWheelBitmap() = wheel.bitmap?.copy(Bitmap.Config.ARGB_8888, false)
 }

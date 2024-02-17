@@ -232,9 +232,10 @@ class WheelOfFortune(
     }
 
     /**
-     * @throws IllegalStateException if bitmap size is 0
+     * @throws IllegalStateException if the bitmap was not created
      */
     fun setItems(items: List<WheelItem>) {
+        if (bitmap == null) throw IllegalStateException("create a bitmap before setting items")
         totalValue = items.sumOf { it.weight }
         var startAngle = 0f
         this.items = items.map {
