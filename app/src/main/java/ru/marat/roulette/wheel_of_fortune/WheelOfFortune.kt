@@ -22,8 +22,7 @@ import kotlin.math.roundToInt
 
 
 class WheelOfFortune(
-    private val context: Context,
-    private val onMeasureItems: (wheelSize: Int) -> List<MeasuredItem>
+    private val context: Context
 ) {
 
     companion object {
@@ -51,41 +50,34 @@ class WheelOfFortune(
         }
 
 
-    private var totalValue = 0L
+    var totalValue = 0
+        private set
 
     private var canvas: Canvas? = null
     var bitmap: Bitmap? = null
         private set
 
-    private var items: List<MeasuredItem> = listOf()
-        set(value) {
-            totalValue = 0L
-            value.forEach { totalValue += it.value }
-            field = value
-            canvas?.drawWheel()
-        }
+    var items: List<MeasuredItem> = listOf()
+        private set
 
 
     private fun Canvas.drawWheel() = drawWithLayer {
         if (items.size == 1) rotate(-180f, center, center)
-        var startAngle = 0f
         items.forEach {
-            val sweepAngle = it.value.toSweepAngle(true)
             drawWithLayer {
-                drawItemContent(it, startAngle, sweepAngle)
-                drawItemArc(it, startAngle, sweepAngle)
+                drawItemContent(it)
+                drawItemArc(it)
             }
-            startAngle += sweepAngle
         }
     }
 
-    private fun Canvas.drawItemArc(item: MeasuredItem, startAngle: Float, sweepAngle: Float) {
+    private fun Canvas.drawItemArc(item: MeasuredItem) {
         drawWithLayer(paint = paint.apply { xfermode = porterDuffXfermode }) {
             canvas?.rotate(-90f, center, center)
             drawArc(
                 RectF(0f, 0f, size.toFloat(), size.toFloat()),
-                startAngle,
-                sweepAngle,
+                item.startAngle,
+                item.sweepAngle,
                 true,
                 arcPaint.apply {
                     color = item.color
@@ -95,8 +87,8 @@ class WheelOfFortune(
             val padding = STROKE_WIDTH / 2f
             drawArc(
                 RectF(padding, padding, size - padding, size - padding),
-                startAngle,
-                sweepAngle,
+                item.startAngle,
+                item.sweepAngle,
                 true,
                 arcPaint.apply {
                     color = Color.BLACK
@@ -107,14 +99,14 @@ class WheelOfFortune(
         }
     }
 
-    private fun Canvas.drawItemContent(item: MeasuredItem, startAngle: Float, sweepAngle: Float) {
+    private fun Canvas.drawItemContent(item: MeasuredItem) {
         if (!checkOutOfBounds(
                 center - ((item.iconRect?.height() ?: 0) + item.edgePadding),
                 item.iconRect?.width()?.toFloat() ?: 0f,
-                sweepAngle.absoluteValue
+                item.sweepAngle.absoluteValue
             ) || item.icon == null
         ) drawWithLayer {
-            rotate(startAngle + (sweepAngle / 2f), center, center)
+            rotate(item.startAngle + (item.sweepAngle / 2f), center, center)
             if (item.direction == ItemDirection.ACROSS && item.icon != null && item.iconRect != null) {
                 drawWithLayer { // todo перенести в отдельную функцию
                     ResourcesCompat.getDrawable(context.resources, item.icon, context.theme)
@@ -127,12 +119,12 @@ class WheelOfFortune(
             }
 
             if (!item.text.isNullOrBlank())
-                drawItemText(item, sweepAngle)
+                drawItemText(item)
         }
     }
 
 
-    private fun Canvas.drawItemText(item: MeasuredItem, sweepAngle: Float) {
+    private fun Canvas.drawItemText(item: MeasuredItem) {
         val textColor = getTextColor(item.color) // временно(или нет)
         val isAcross = item.direction == ItemDirection.ACROSS
         val edgeOffset =
@@ -162,14 +154,13 @@ class WheelOfFortune(
                     item,
                     textLayoutWidth,
                     textColor,
-                    sweepAngle.absoluteValue,
                     edgeOffset
                 )
             staticLayout == null
         } else checkOutOfBounds(
             center - (staticLayout!!.width + item.edgePadding),
             (staticLayout.getLineBaseline(0)).toFloat(),
-            sweepAngle.absoluteValue
+            item.sweepAngle.absoluteValue
         )
 
         if (!outOfBound)
@@ -192,12 +183,11 @@ class WheelOfFortune(
         item: MeasuredItem,
         textLayoutWidth: Int,
         textColor: Int,
-        sweepAngle: Float,
         edgeOffset: Float
     ): StaticLayout? {
         var maxLines: Int? = null
-        if (sweepAngle >= 180f) {
-            val availableHeight = center- edgeOffset
+        if (item.sweepAngle.absoluteValue >= 180f) {
+            val availableHeight = center - edgeOffset
             if (height <= availableHeight) return this
             maxLines = getLineForVertical(availableHeight.roundToInt())
         } else for (i in 0..<lineCount) {
@@ -207,12 +197,12 @@ class WheelOfFortune(
                 checkOutOfBounds(
                     (center - (lineHeight + edgeOffset)).coerceAtLeast(0f),
                     lineWidth,
-                    sweepAngle
+                    item.sweepAngle.absoluteValue
                 )
             ) break
             maxLines = i + 1
         }
-        if (item.icon == R.drawable.android) Log.e("TAGTAG MAXLINES", maxLines.toString())
+        Log.e("TAGTAG MAXLINES", maxLines.toString())
         if (maxLines == lineCount) return this
         return if (maxLines != null) measureText(
             text = item.text!!,
@@ -227,21 +217,32 @@ class WheelOfFortune(
     }
 
 
-    fun prepareBitmap(size: Int) {
-        require(size > 0) { "bitmap size must be > 0" }
-        this.size = size
-        bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-        canvas = Canvas(bitmap!!)
-        items = onMeasureItems(size)
-        canvas?.drawWheel()
-    }
-
     fun Int.toSweepAngle(reversed: Boolean = false): Float {
         val sweep = (this.toDouble() / totalValue.toDouble()) * 360.0
         return (if (reversed) -sweep else sweep).toFloat()
     }
 
-    fun invalidate() {
-        items = onMeasureItems(size)
+    fun prepareBitmap(size: Int) {
+        require(size > 0) { "bitmap size must be > 0" }
+        this.size = size
+        bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        canvas = Canvas(bitmap!!)
+        if (items.isNotEmpty())
+            canvas?.drawWheel()
+    }
+
+    /**
+     * @throws IllegalStateException if bitmap size is 0
+     */
+    fun setItems(items: List<WheelItem>) {
+        totalValue = items.sumOf { it.weight }
+        var startAngle = 0f
+        this.items = items.map {
+            val sweepAngle = it.weight.toSweepAngle(true)
+            val measuredItem = it.measureItem(context, size, startAngle, sweepAngle)
+            startAngle += sweepAngle
+            measuredItem
+        }
+        if (size > 0) canvas?.drawWheel()
     }
 }

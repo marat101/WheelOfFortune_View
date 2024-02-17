@@ -13,6 +13,7 @@ import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlin.math.absoluteValue
 import kotlin.math.min
 
 class WheelOfFortuneView @JvmOverloads constructor(
@@ -55,18 +56,18 @@ class WheelOfFortuneView @JvmOverloads constructor(
     var items: List<WheelItem> = listOf()
         set(value) {
             field = value
-            this.wheel.invalidate()
+            if (wheel.size == 0)
+                wheel.setItems(value)
             invalidate()
         }
 
-    private val wheel = WheelOfFortune(context) { wheelSize ->
-        items.map { it.measureItem(context, wheelSize) }
-    }
+    private val wheel = WheelOfFortune(context)
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         val maxValue = min(w, h) // max(w, h)
         wheel.prepareBitmap(maxValue)
+        wheel.setItems(items)
         pointerPath = drawPointerPath(maxValue)
     }
 
@@ -101,13 +102,8 @@ class WheelOfFortuneView @JvmOverloads constructor(
     }
 
     private fun Float.getColor(): Int { //fixme delete
-        wheel.run {
-            var startAngle = 0f
-            items.forEach {
-                val sweepAngle = it.weight.toSweepAngle()
-                if (this@getColor in startAngle..(startAngle + sweepAngle)) return it.color
-                startAngle += sweepAngle
-            }
+        wheel.items.forEach {
+            if (this@getColor in it.startAngle.absoluteValue..it.endAngle.absoluteValue) return it.color
         }
         return Color.TRANSPARENT
     }

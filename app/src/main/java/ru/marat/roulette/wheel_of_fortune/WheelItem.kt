@@ -21,7 +21,12 @@ data class WheelItem(
     val centerPadding: Measurable = Fraction(0.1f),
     val spacing: Measurable? = null
 ) {
-    internal fun measureItem(context: Context, wheelSize: Int): MeasuredItem = MeasuredItem(
+    internal fun measureItem(
+        context: Context,
+        wheelSize: Int,
+        startAngle: Float,
+        sweepAngle: Float
+    ): MeasuredItem = MeasuredItem(
         text,
         weight,
         color,
@@ -31,7 +36,9 @@ data class WheelItem(
         if (icon != null) iconSize.measure(context, wheelSize) else null,
         edgePadding.measure(context, wheelSize),
         centerPadding.measure(context, wheelSize),
-        spacing?.measure(context, wheelSize) ?: 0f
+        spacing?.measure(context, wheelSize) ?: 0f,
+        startAngle,
+        sweepAngle
     )
 }
 
@@ -45,7 +52,10 @@ data class MeasuredItem(
     val iconRect: Rect? = null,
     val edgePadding: Float,
     val centerPadding: Float,
-    val spacing: Float
+    val spacing: Float,
+    val startAngle: Float,
+    val sweepAngle: Float,
+    val endAngle: Float = startAngle + sweepAngle
 )
 
 enum class ItemDirection {
