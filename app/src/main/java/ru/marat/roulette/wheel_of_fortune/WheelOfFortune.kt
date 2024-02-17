@@ -8,12 +8,12 @@ import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.RectF
+import android.graphics.Typeface
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.util.Log
 import androidx.core.content.res.ResourcesCompat
-import ru.marat.roulette.R
 import ru.marat.roulette.wheel_of_fortune.measurements.checkOutOfBounds
 import ru.marat.roulette.wheel_of_fortune.measurements.measureText
 import ru.marat.roulette.wheel_of_fortune.measurements.measureWidth
@@ -217,9 +217,13 @@ class WheelOfFortune(
     }
 
 
-    fun Int.toSweepAngle(reversed: Boolean = false): Float {
+    private fun Int.toSweepAngle(reversed: Boolean = false): Float {
         val sweep = (this.toDouble() / totalValue.toDouble()) * 360.0
         return (if (reversed) -sweep else sweep).toFloat()
+    }
+
+    fun setFont(typeface: Typeface) {
+        textPaint.typeface = typeface
     }
 
     fun prepareBitmap(size: Int) {

@@ -6,6 +6,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.Typeface
 import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.ColorInt
@@ -14,8 +15,10 @@ import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import ru.marat.roulette.R
 import kotlin.math.absoluteValue
 import kotlin.math.min
+
 
 class WheelOfFortuneView @JvmOverloads constructor(
     context: Context,
@@ -62,6 +65,14 @@ class WheelOfFortuneView @JvmOverloads constructor(
 
     private val wheel = WheelOfFortune(context)
 
+    init {
+        attrs?.run {
+            val attrsArray = context.obtainStyledAttributes(attrs, R.styleable.WheelOfFortuneView)
+            val typeface = attrsArray.getFont(R.styleable.WheelOfFortuneView_fontFamily)
+            typeface?.run { wheel.setFont(this) }
+            attrsArray.recycle()
+        }
+    }
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         val maxValue = min(w, h) // max(w, h)
@@ -106,5 +117,8 @@ class WheelOfFortuneView @JvmOverloads constructor(
         }
         return Color.TRANSPARENT
     }
+
+    fun setFont(typeface: Typeface)= wheel.setFont(typeface)
+
     fun getWheelBitmap() = wheel.bitmap?.copy(Bitmap.Config.ARGB_8888, false)
 }
