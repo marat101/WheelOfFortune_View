@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity() {
                         320,
 //                        Color.rgb((0..255).random(), (0..255).random(), (0..255).random()),
                         Color.DKGRAY,
+                        textColor = Color.RED,
                         direction = ItemDirection.ALONG
                     ),
                     WheelItem("Apple", 320, Color.LTGRAY, R.drawable.apple),

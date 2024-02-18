@@ -125,7 +125,6 @@ class WheelOfFortune(
 
 
     private fun Canvas.drawItemText(item: MeasuredItem) {
-        val textColor = getTextColor(item.color) // временно(или нет)
         val isAcross = item.direction == ItemDirection.ACROSS
         val edgeOffset =
             if (item.icon != null) (item.iconRect?.height() ?: 0) + item.spacing + item.edgePadding
@@ -139,7 +138,7 @@ class WheelOfFortune(
         var staticLayout: StaticLayout? = measureText(
             text = item.text!!,
             paint = textPaint.apply {
-                color = textColor
+                color = item.textColor
                 textSize = item.textSize ?: 0f
             },
             width = textLayoutWidth,
@@ -153,7 +152,6 @@ class WheelOfFortune(
                 staticLayout?.checkLinesOutOfBound(
                     item,
                     textLayoutWidth,
-                    textColor,
                     edgeOffset
                 )
             staticLayout == null
@@ -182,7 +180,6 @@ class WheelOfFortune(
     private fun StaticLayout.checkLinesOutOfBound(
         item: MeasuredItem,
         textLayoutWidth: Int,
-        textColor: Int,
         edgeOffset: Float
     ): StaticLayout? {
         var maxLines: Int? = null
@@ -207,7 +204,7 @@ class WheelOfFortune(
         return if (maxLines != null) measureText(
             text = item.text!!,
             paint = textPaint.apply {
-                color = textColor
+                color = item.textColor
                 textSize = item.textSize ?: 0f
             },
             width = textLayoutWidth,
