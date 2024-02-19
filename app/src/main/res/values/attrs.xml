@@ -2,5 +2,6 @@
 <resources>
     <declare-styleable name="WheelOfFortuneView">
         <attr name="fontFamily" format="string"/>
+        <attr name="strokeWidth" format="dimension"/>
     </declare-styleable>
 </resources>

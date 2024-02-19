@@ -8,8 +8,10 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Typeface
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import androidx.annotation.ColorInt
+import androidx.annotation.Px
 import androidx.dynamicanimation.animation.FloatValueHolder
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
@@ -32,6 +34,15 @@ class WheelOfFortuneView @JvmOverloads constructor(
 
     private val scope = CoroutineScope(Dispatchers.Main)
     private var pointerPath: Path? = null
+
+    private val wheel = WheelOfFortune(context)
+
+    @Px
+    var strokeWidth = wheel.strokeWidth
+        set(value) {
+            wheel.strokeWidth = value
+            field = value
+        }
 
     val springForce = SpringForce(166f).apply {//fixme private
         dampingRatio = SpringForce.DAMPING_RATIO_NO_BOUNCY
@@ -63,16 +74,18 @@ class WheelOfFortuneView @JvmOverloads constructor(
             invalidate()
         }
 
-    private val wheel = WheelOfFortune(context)
 
     init {
         attrs?.run {
             val attrsArray = context.obtainStyledAttributes(attrs, R.styleable.WheelOfFortuneView)
             val typeface = attrsArray.getFont(R.styleable.WheelOfFortuneView_fontFamily)
+            val attrStrokeWidth = attrsArray.getDimension(R.styleable.WheelOfFortuneView_strokeWidth, 0f)
             typeface?.run { wheel.setFont(this) }
+            strokeWidth = attrStrokeWidth
             attrsArray.recycle()
         }
     }
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         val maxValue = min(w, h) // max(w, h)
@@ -118,7 +131,7 @@ class WheelOfFortuneView @JvmOverloads constructor(
         return Color.TRANSPARENT
     }
 
-    fun setFont(typeface: Typeface)= wheel.setFont(typeface)
+    fun setFont(typeface: Typeface) = wheel.setFont(typeface)
 
     fun getWheelBitmap() = wheel.bitmap?.copy(Bitmap.Config.ARGB_8888, false)
 }

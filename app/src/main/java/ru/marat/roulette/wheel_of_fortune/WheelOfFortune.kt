@@ -14,6 +14,7 @@ import android.text.StaticLayout
 import android.text.TextPaint
 import android.util.Log
 import androidx.core.content.res.ResourcesCompat
+import ru.marat.roulette.wheel_of_fortune.measurements.Dp
 import ru.marat.roulette.wheel_of_fortune.measurements.checkOutOfBounds
 import ru.marat.roulette.wheel_of_fortune.measurements.measureText
 import ru.marat.roulette.wheel_of_fortune.measurements.measureWidth
@@ -24,10 +25,6 @@ import kotlin.math.roundToInt
 class WheelOfFortune(
     private val context: Context
 ) {
-
-    companion object {
-        const val STROKE_WIDTH = 2.5f
-    }
 
     private val porterDuffXfermode = PorterDuffXfermode(PorterDuff.Mode.DST_ATOP)
     private val paint = Paint()
@@ -41,6 +38,11 @@ class WheelOfFortune(
         isAntiAlias = true
     }
 
+    var strokeWidth = 2.5f
+        set(value) {
+            field = value
+            canvas?.drawWheel()
+        }
     var center = 0f
         private set
     var size = 0
@@ -50,13 +52,13 @@ class WheelOfFortune(
         }
 
 
-    var totalValue = 0
-        private set
-
     private var canvas: Canvas? = null
     var bitmap: Bitmap? = null
         private set
 
+
+    var totalValue = 0
+        private set
     var items: List<MeasuredItem> = listOf()
         private set
 
@@ -84,7 +86,7 @@ class WheelOfFortune(
                     style = Paint.Style.FILL
                 }
             )
-            val padding = STROKE_WIDTH / 2f
+            val padding = strokeWidth / 2f
             drawArc(
                 RectF(padding, padding, size - padding, size - padding),
                 item.startAngle,
@@ -92,7 +94,7 @@ class WheelOfFortune(
                 true,
                 arcPaint.apply {
                     color = Color.BLACK
-                    strokeWidth = STROKE_WIDTH
+                    strokeWidth = this@WheelOfFortune.strokeWidth
                     style = Paint.Style.STROKE
                 }
             )
@@ -245,6 +247,6 @@ class WheelOfFortune(
             startAngle += sweepAngle
             measuredItem
         }
-        if (size > 0) canvas?.drawWheel()
+        canvas?.drawWheel()
     }
 }
