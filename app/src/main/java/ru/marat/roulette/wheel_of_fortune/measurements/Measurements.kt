@@ -1,6 +1,5 @@
 package ru.marat.roulette.wheel_of_fortune.measurements
 
-import kotlin.math.PI
 import kotlin.math.acos
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -35,5 +34,5 @@ fun checkOutOfBounds(
  */
 fun measureAngle(a: Float, b: Float, c: Float): Double {
     val cosAB = ((a.pow(2) + b.pow(2)) - c.pow(2)) / (2 * a * b)
-    return acos(cosAB) * 180.0 / PI
+    return Math.toDegrees(acos(cosAB).toDouble())
 }

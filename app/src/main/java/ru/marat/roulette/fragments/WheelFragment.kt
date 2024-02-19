@@ -7,8 +7,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import ru.marat.roulette.R
-import ru.marat.roulette.wheel_of_fortune.WheelOfFortuneView
 import ru.marat.roulette.fragments.other.ItemsList
+import ru.marat.roulette.wheel_of_fortune.WheelOfFortuneView
 
 class WheelFragment : Fragment(R.layout.fragment_wheel) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

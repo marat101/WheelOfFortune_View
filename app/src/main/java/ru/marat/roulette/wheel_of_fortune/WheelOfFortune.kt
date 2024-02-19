@@ -14,7 +14,6 @@ import android.text.StaticLayout
 import android.text.TextPaint
 import android.util.Log
 import androidx.core.content.res.ResourcesCompat
-import ru.marat.roulette.wheel_of_fortune.measurements.Dp
 import ru.marat.roulette.wheel_of_fortune.measurements.checkOutOfBounds
 import ru.marat.roulette.wheel_of_fortune.measurements.measureText
 import ru.marat.roulette.wheel_of_fortune.measurements.measureWidth

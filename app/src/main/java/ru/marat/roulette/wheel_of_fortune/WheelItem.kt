@@ -1,11 +1,9 @@
 package ru.marat.roulette.wheel_of_fortune
 
 import android.content.Context
-import android.graphics.Color
 import android.graphics.Rect
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
-import ru.marat.roulette.R
 import ru.marat.roulette.wheel_of_fortune.measurements.Fraction
 import ru.marat.roulette.wheel_of_fortune.measurements.FractionSize
 import ru.marat.roulette.wheel_of_fortune.measurements.Measurable

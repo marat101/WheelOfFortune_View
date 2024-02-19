@@ -7,12 +7,9 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import ru.marat.roulette.fragments.WheelFragment
 import ru.marat.roulette.fragments.other.ItemsList
-import ru.marat.roulette.wheel_of_fortune.WheelItem
 import ru.marat.roulette.wheel_of_fortune.ItemDirection
-import ru.marat.roulette.wheel_of_fortune.measurements.asDp
+import ru.marat.roulette.wheel_of_fortune.WheelItem
 import ru.marat.roulette.wheel_of_fortune.measurements.asFraction
-import ru.marat.roulette.wheel_of_fortune.measurements.asPx
-import ru.marat.roulette.wheel_of_fortune.measurements.asSp
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

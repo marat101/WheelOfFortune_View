@@ -15,10 +15,10 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
-import ru.marat.roulette.wheel_of_fortune.WheelItem
 import ru.marat.roulette.R
 import ru.marat.roulette.fragments.other.ItemsList
 import ru.marat.roulette.fragments.recycler_view.IconsRVA
+import ru.marat.roulette.wheel_of_fortune.WheelItem
 
 
 class EditDialogFragment : DialogFragment(R.layout.layout_item_creation) {
