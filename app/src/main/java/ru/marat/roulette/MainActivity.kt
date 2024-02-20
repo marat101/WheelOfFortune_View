@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
                 listOf(
                     WheelItem("Androidddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
                         3200, Color.WHITE, R.drawable.android,
-                        textSize = 0.02f.asFraction()),
+                        textSize = 0.01f.asFraction()),
                     WheelItem(
                         "какой-то длинный текст",
                         320,

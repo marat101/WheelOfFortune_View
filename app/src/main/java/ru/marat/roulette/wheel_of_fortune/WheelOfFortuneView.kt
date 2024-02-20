@@ -11,15 +11,17 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
+import androidx.core.graphics.scale
 import androidx.dynamicanimation.animation.FloatValueHolder
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import ru.marat.roulette.R
+import ru.marat.roulette.fragments.drawPointerPath
 import kotlin.math.absoluteValue
+import kotlin.math.max
 import kotlin.math.min
 
+const val DEFAULT_WHEEL_BITMAP_SIZE = 1080
 
 class WheelOfFortuneView @JvmOverloads constructor(
     context: Context,
@@ -30,11 +32,18 @@ class WheelOfFortuneView @JvmOverloads constructor(
         isAntiAlias = false
     }
     private val pointerPaint = Paint()
+    private var bitmapScale: Float? = null
 
-    private val scope = CoroutineScope(Dispatchers.Main)
     private var pointerPath: Path? = null
 
     private val wheel = WheelOfFortune(context)
+
+    @Px
+    var fixedBitmapSize: Int? = null
+        set(value) {
+            field = value
+            requestLayout()
+        }
 
     @Px
     var strokeWidth = wheel.strokeWidth
@@ -43,24 +52,37 @@ class WheelOfFortuneView @JvmOverloads constructor(
             field = value
         }
 
-    val springForce = SpringForce(166f).apply {//fixme private
+    @ColorInt
+    var strokeColor = wheel.strokeColor
+        set(value) {
+            wheel.strokeColor = value
+            field = value
+        }
+
+    @Px
+    var size: Int? = null
+        private set(value) {
+            field = value
+        }
+
+    private val springForce = SpringForce(166f).apply {
         dampingRatio = SpringForce.DAMPING_RATIO_NO_BOUNCY
         stiffness = 10f
     }
-    val animatedValue = FloatValueHolder(0f) //fixme private
+    private val animatedValue = FloatValueHolder(0f)
 
     @ColorInt
     private var currentColor = Color.TRANSPARENT
 
     private var spinCount = 0
-    val animation = SpringAnimation(animatedValue).apply { //fixme private
+    private val animation = SpringAnimation(animatedValue).apply {
         spring = springForce
         minimumVisibleChange = 0.05f
-        addUpdateListener { _, _, _ ->
+        addUpdateListener { _, value, _ ->
+            currentColor = (value - (360f * spinCount)).getColor()
             invalidate()
         }
         addEndListener { _, _, _, _ ->
-            spinCount = (springForce.finalPosition / 360.0).toInt()
             currentColor = (animatedValue.value - (360f * spinCount)).getColor()
             animatedValue.value = springForce.finalPosition - (360f * spinCount)
         }
@@ -78,19 +100,31 @@ class WheelOfFortuneView @JvmOverloads constructor(
         attrs?.run {
             val attrsArray = context.obtainStyledAttributes(attrs, R.styleable.WheelOfFortuneView)
             val typeface = attrsArray.getFont(R.styleable.WheelOfFortuneView_fontFamily)
-            val attrStrokeWidth = attrsArray.getDimension(R.styleable.WheelOfFortuneView_strokeWidth, 0f)
+            val attrStrokeWidth =
+                attrsArray.getDimension(R.styleable.WheelOfFortuneView_strokeWidth, 0f)
+            val attrStrokeColor =
+                attrsArray.getColor(R.styleable.WheelOfFortuneView_strokeColor, Color.RED)
+            if (attrsArray.getBoolean(
+                    R.styleable.WheelOfFortuneView_fixedWheelBitmapSize,
+                    true
+                ) && fixedBitmapSize == null
+            ) fixedBitmapSize = DEFAULT_WHEEL_BITMAP_SIZE
             typeface?.run { wheel.setFont(this) }
             strokeWidth = attrStrokeWidth
+            strokeColor = attrStrokeColor
             attrsArray.recycle()
         }
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        val maxValue = min(w, h) // max(w, h)
-        wheel.prepareBitmap(maxValue)
+        size = max(w, h)
+        val bitmapSize = fixedBitmapSize ?: size!!
+        wheel.prepareBitmap(bitmapSize)
         wheel.setItems(items)
-        pointerPath = drawPointerPath(maxValue)
+        if (fixedBitmapSize != null) bitmapScale = size!!.toFloat() / wheel.size.toFloat()
+
+        pointerPath = drawPointerPath(size!!)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -98,7 +132,8 @@ class WheelOfFortuneView @JvmOverloads constructor(
 
         if (items.isNotEmpty()) {
             canvas.drawWithLayer {
-                rotate(animatedValue.value, wheel.center, wheel.center)
+                rotate(animatedValue.value, size!! / 2f, size!! / 2f)
+                bitmapScale?.let { scale(it, it) }
                 wheel.bitmap?.let { drawBitmap(it, 0f, 0f, paint) }
             }
             canvas.drawPointer()
@@ -111,7 +146,7 @@ class WheelOfFortuneView @JvmOverloads constructor(
                 drawPath(it, pointerPaint.apply {
                     color = Color.BLACK
                 })
-                scale(0.8f, 0.8f, wheel.center, 0f)
+                scale(0.8f, 0.8f, size!! / 2f, 0f)
                 drawPath(
                     it,
                     pointerPaint.apply {
@@ -123,11 +158,21 @@ class WheelOfFortuneView @JvmOverloads constructor(
         }
     }
 
-    private fun Float.getColor(): Int { //fixme delete
+    private fun Float.getColor(): Int {
         wheel.items.forEach {
             if (this@getColor in it.startAngle.absoluteValue..it.endAngle.absoluteValue) return it.color
         }
         return Color.TRANSPARENT
+    }
+
+    fun animTest() {
+        if (!animation.isRunning) {
+            val targetValue = animatedValue.value + (540..(360 * 15)).random()
+            springForce.finalPosition = targetValue
+            spinCount = (targetValue / 360f).toInt()
+            animation.start()
+        } else
+            animation.skipToEnd()
     }
 
     fun setFont(typeface: Typeface) = wheel.setFont(typeface)

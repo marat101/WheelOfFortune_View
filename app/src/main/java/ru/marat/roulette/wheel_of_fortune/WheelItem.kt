@@ -1,6 +1,5 @@
 package ru.marat.roulette.wheel_of_fortune
 
-import android.content.Context
 import android.graphics.Rect
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
@@ -23,7 +22,6 @@ data class WheelItem(
     val spacing: Measurable? = null
 ) {
     internal fun measureItem(
-        context: Context,
         wheelSize: Int,
         startAngle: Float,
         sweepAngle: Float
@@ -33,12 +31,12 @@ data class WheelItem(
         color,
         icon,
         direction,
-        if (!text.isNullOrBlank()) textSize.measure(context, wheelSize) else null,
+        if (!text.isNullOrBlank()) textSize.measure(wheelSize) else null,
         textColor,
-        if (icon != null) iconSize.measure(context, wheelSize) else null,
-        edgePadding.measure(context, wheelSize),
-        centerPadding.measure(context, wheelSize),
-        spacing?.measure(context, wheelSize) ?: 0f,
+        if (icon != null) iconSize.measure(wheelSize) else null,
+        edgePadding.measure(wheelSize),
+        centerPadding.measure(wheelSize),
+        spacing?.measure(wheelSize) ?: 0f,
         startAngle,
         sweepAngle
     )

@@ -1,4 +1,4 @@
-package ru.marat.roulette.wheel_of_fortune
+package ru.marat.roulette.fragments
 
 import android.graphics.Path
 import android.util.Size

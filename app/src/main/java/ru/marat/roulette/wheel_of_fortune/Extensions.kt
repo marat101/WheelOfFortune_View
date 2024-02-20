@@ -1,39 +1,30 @@
 package ru.marat.roulette.wheel_of_fortune
 
-import android.content.Context
+import android.content.res.Resources
 import android.graphics.Color
-import android.text.StaticLayout
 import android.util.TypedValue
 import androidx.core.graphics.ColorUtils
 import kotlin.math.roundToInt
 
 
-fun Float.spToPx(context: Context): Float {
+fun Float.spToPx(): Float {
     return TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_SP,
         this,
-        context.resources.displayMetrics
+        Resources.getSystem().displayMetrics
     )
 }
 
-fun Float.dpToPx(context: Context): Float {
+fun Float.dpToPx(): Float {
     return TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP,
         this,
-        context.resources.displayMetrics
+        Resources.getSystem().displayMetrics
     )
 }
 
-fun StaticLayout.getMaxLineWidth(): Float {
-    val linesWidth = mutableListOf<Float>()
-    repeat(lineCount) {
-        linesWidth.add(getLineWidth(it))
-    }
-    return linesWidth.max()
-}
-
-fun Float.roundDpToPx(context: Context): Int {
-    return dpToPx(context).roundToInt()
+fun Float.roundDpToPx(): Int {
+    return dpToPx().roundToInt()
 }
 
 fun getTextColor(color: Int): Int {

@@ -42,6 +42,11 @@ class WheelOfFortune(
             field = value
             canvas?.drawWheel()
         }
+    var strokeColor = Color.BLACK
+        set(value) {
+            field = value
+            canvas?.drawWheel()
+        }
     var center = 0f
         private set
     var size = 0
@@ -53,7 +58,9 @@ class WheelOfFortune(
 
     private var canvas: Canvas? = null
     var bitmap: Bitmap? = null
-        private set
+        private set(value) {
+            field = value
+        }
 
 
     var totalValue = 0
@@ -63,6 +70,7 @@ class WheelOfFortune(
 
 
     private fun Canvas.drawWheel() = drawWithLayer {
+        Log.e("TAGTAG DNST", context.resources.displayMetrics.density.toString())
         if (items.size == 1) rotate(-180f, center, center)
         items.forEach {
             drawWithLayer {
@@ -92,7 +100,7 @@ class WheelOfFortune(
                 item.sweepAngle,
                 true,
                 arcPaint.apply {
-                    color = Color.BLACK
+                    color = strokeColor
                     strokeWidth = this@WheelOfFortune.strokeWidth
                     style = Paint.Style.STROKE
                 }
@@ -200,7 +208,6 @@ class WheelOfFortune(
             ) break
             maxLines = i + 1
         }
-        Log.e("TAGTAG MAXLINES", maxLines.toString())
         if (maxLines == lineCount) return this
         return if (maxLines != null) measureText(
             text = item.text!!,
@@ -242,7 +249,7 @@ class WheelOfFortune(
         var startAngle = 0f
         this.items = items.map {
             val sweepAngle = it.weight.toSweepAngle(true)
-            val measuredItem = it.measureItem(context, size, startAngle, sweepAngle)
+            val measuredItem = it.measureItem(size, startAngle, sweepAngle)
             startAngle += sweepAngle
             measuredItem
         }
