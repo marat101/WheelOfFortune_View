@@ -8,6 +8,9 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Typeface
 import android.util.AttributeSet
+import android.util.Log
+import android.view.DragEvent
+import android.view.MotionEvent
 import android.view.View
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
@@ -21,12 +24,15 @@ import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
 
-const val DEFAULT_WHEEL_BITMAP_SIZE = 1080
 
 class WheelOfFortuneView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
 ) : View(context, attrs) {
+
+    companion object {
+        const val DEFAULT_WHEEL_BITMAP_SIZE = 1080
+    }
 
     private val paint = Paint().apply {
         isAntiAlias = false
@@ -97,13 +103,14 @@ class WheelOfFortuneView @JvmOverloads constructor(
 
 
     init {
+        overScrollMode = OVER_SCROLL_NEVER
         attrs?.run {
             val attrsArray = context.obtainStyledAttributes(attrs, R.styleable.WheelOfFortuneView)
             val typeface = attrsArray.getFont(R.styleable.WheelOfFortuneView_fontFamily)
             val attrStrokeWidth =
                 attrsArray.getDimension(R.styleable.WheelOfFortuneView_strokeWidth, 0f)
             val attrStrokeColor =
-                attrsArray.getColor(R.styleable.WheelOfFortuneView_strokeColor, Color.RED)
+                attrsArray.getColor(R.styleable.WheelOfFortuneView_strokeColor, Color.BLACK)
             if (attrsArray.getBoolean(
                     R.styleable.WheelOfFortuneView_fixedWheelBitmapSize,
                     true
@@ -173,6 +180,20 @@ class WheelOfFortuneView @JvmOverloads constructor(
             animation.start()
         } else
             animation.skipToEnd()
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        when (event?.action) {
+            MotionEvent.ACTION_MOVE -> {
+                Log.e("TAGTAG", "$event")
+                event.x
+            }
+
+            MotionEvent.ACTION_DOWN -> {
+                Log.e("TAGTAG", "down")
+            }
+        }
+        return true
     }
 
     fun setFont(typeface: Typeface) = wheel.setFont(typeface)

@@ -1,11 +1,8 @@
 package ru.marat.roulette.fragments
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
-import androidx.annotation.ColorLong
-import androidx.core.graphics.toColorInt
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
