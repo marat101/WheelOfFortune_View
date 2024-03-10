@@ -10,6 +10,7 @@ import android.graphics.Typeface
 import android.util.AttributeSet
 import android.util.Log
 import android.view.DragEvent
+import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import androidx.annotation.ColorInt
@@ -40,7 +41,7 @@ class WheelOfFortuneView @JvmOverloads constructor(
     private val pointerPaint = Paint()
     private var bitmapScale: Float? = null
 
-    private var pointerPath: Path? = null
+    private var pointerPath: Path? = null // fixme убрать когда-нибудь
 
     private val wheel = WheelOfFortune(context)
 
@@ -71,6 +72,19 @@ class WheelOfFortuneView @JvmOverloads constructor(
             field = value
         }
 
+    private val gestureDetector = GestureDetector(context, WheelScroll {
+        if (!animation.isRunning) {
+            animatedValue.value += it
+            spinCount = (animatedValue.value.absoluteValue / 360f).toInt()
+            currentColor =
+            if (animatedValue.value > 0)
+                (animatedValue.value - (360f * spinCount)).getColor()
+            else
+                (360f - (animatedValue.value.absoluteValue - (360f * spinCount))).getColor()
+            invalidate()
+        }
+    })
+
     private val springForce = SpringForce(166f).apply {
         dampingRatio = SpringForce.DAMPING_RATIO_NO_BOUNCY
         stiffness = 10f
@@ -85,11 +99,17 @@ class WheelOfFortuneView @JvmOverloads constructor(
         spring = springForce
         minimumVisibleChange = 0.05f
         addUpdateListener { _, value, _ ->
-            currentColor = (value - (360f * spinCount)).getColor()
+            currentColor = if (value > 0)
+                (value - (360f * spinCount)).getColor()
+            else
+                (360f - (value.absoluteValue - (360f * spinCount))).getColor()
             invalidate()
         }
         addEndListener { _, _, _, _ ->
-            currentColor = (animatedValue.value - (360f * spinCount)).getColor()
+            currentColor = if (animatedValue.value > 0)
+                (animatedValue.value - (360f * spinCount)).getColor()
+            else
+                (360f - (animatedValue.value.absoluteValue - (360f * spinCount))).getColor()
             animatedValue.value = springForce.finalPosition - (360f * spinCount)
         }
     }
@@ -167,7 +187,10 @@ class WheelOfFortuneView @JvmOverloads constructor(
 
     private fun Float.getColor(): Int {
         wheel.items.forEach {
-            if (this@getColor in it.startAngle.absoluteValue..it.endAngle.absoluteValue) return it.color
+            if (
+                this@getColor in it.startAngle.absoluteValue..it.endAngle.absoluteValue
+                || this@getColor in it.startAngle..it.endAngle
+            ) return it.color
         }
         return Color.TRANSPARENT
     }
@@ -176,7 +199,7 @@ class WheelOfFortuneView @JvmOverloads constructor(
         if (!animation.isRunning) {
             val targetValue = animatedValue.value + (540..(360 * 15)).random()
             springForce.finalPosition = targetValue
-            spinCount = (targetValue / 360f).toInt()
+            spinCount = (targetValue.absoluteValue / 360f).toInt()
             animation.start()
         } else
             animation.skipToEnd()
@@ -193,6 +216,7 @@ class WheelOfFortuneView @JvmOverloads constructor(
                 Log.e("TAGTAG", "down")
             }
         }
+        event?.let { if (gestureDetector.onTouchEvent(event)) return true }
         return true
     }
 
