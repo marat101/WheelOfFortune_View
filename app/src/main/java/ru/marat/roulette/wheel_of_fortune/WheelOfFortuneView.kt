@@ -1,5 +1,8 @@
 package ru.marat.roulette.wheel_of_fortune
 
+import android.R.attr.action
+import android.R.attr.centerX
+import android.R.attr.centerY
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -9,13 +12,10 @@ import android.graphics.Path
 import android.graphics.Typeface
 import android.util.AttributeSet
 import android.util.Log
-import android.view.DragEvent
-import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
-import androidx.core.graphics.scale
 import androidx.dynamicanimation.animation.FloatValueHolder
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
@@ -23,13 +23,12 @@ import ru.marat.roulette.R
 import ru.marat.roulette.fragments.drawPointerPath
 import kotlin.math.absoluteValue
 import kotlin.math.max
-import kotlin.math.min
 
 
 class WheelOfFortuneView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-) : View(context, attrs) {
+) : View(context, attrs), RotationGestureDetector.OnRotationGestureListener {
 
     companion object {
         const val DEFAULT_WHEEL_BITMAP_SIZE = 1080
@@ -72,18 +71,7 @@ class WheelOfFortuneView @JvmOverloads constructor(
             field = value
         }
 
-    private val gestureDetector = GestureDetector(context, WheelScroll {
-        if (!animation.isRunning) {
-            animatedValue.value += it
-            spinCount = (animatedValue.value.absoluteValue / 360f).toInt()
-            currentColor =
-            if (animatedValue.value > 0)
-                (animatedValue.value - (360f * spinCount)).getColor()
-            else
-                (360f - (animatedValue.value.absoluteValue - (360f * spinCount))).getColor()
-            invalidate()
-        }
-    })
+    private val mRotationDetector: RotationGestureDetector = RotationGestureDetector(this);
 
     private val springForce = SpringForce(166f).apply {
         dampingRatio = SpringForce.DAMPING_RATIO_NO_BOUNCY
@@ -205,19 +193,23 @@ class WheelOfFortuneView @JvmOverloads constructor(
             animation.skipToEnd()
     }
 
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        when (event?.action) {
-            MotionEvent.ACTION_MOVE -> {
-                Log.e("TAGTAG", "$event")
-                event.x
-            }
 
-            MotionEvent.ACTION_DOWN -> {
-                Log.e("TAGTAG", "down")
-            }
-        }
-        event?.let { if (gestureDetector.onTouchEvent(event)) return true }
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        event?.let { mRotationDetector.onTouchEvent(event, width/2f) }
         return true
+    }
+
+    override fun onRotation(angleDelta: Float) {
+        angleDelta.let {
+            animatedValue.value += it
+            spinCount = (animatedValue.value.absoluteValue/360f).toInt()
+            currentColor = if (animatedValue.value > 0)
+                (animatedValue.value - (360f * spinCount)).getColor()
+            else
+                (360f - (animatedValue.value.absoluteValue - (360f * spinCount))).getColor()
+            Log.e("ANGLE", animatedValue.value.toString())
+            invalidate()
+        }
     }
 
     fun setFont(typeface: Typeface) = wheel.setFont(typeface)

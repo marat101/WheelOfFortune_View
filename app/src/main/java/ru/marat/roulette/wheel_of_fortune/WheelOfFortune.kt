@@ -253,6 +253,7 @@ class WheelOfFortune(
             startAngle += sweepAngle
             measuredItem
         }
+        Log.e("TAGTAG",this.items.toString())
         canvas?.drawWheel()
     }
 }
