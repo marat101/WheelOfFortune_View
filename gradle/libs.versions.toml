@@ -8,10 +8,12 @@ espresso-core = "3.5.1"
 appcompat = "1.6.1"
 material = "1.10.0"
 constraintlayout = "2.1.4"
+ui = "1.6.3"
 ui-graphics = "1.5.11"
 work-runtime-ktx = "2.9.0"
 
 [libraries]
+androidx-ui = { module = "androidx.compose.ui:ui", version.ref = "ui" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "work-runtime-ktx" }
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

@@ -38,6 +38,7 @@ android {
 
 dependencies {
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.ui)
 
     implementation(libs.core.ktx)
     implementation(libs.appcompat)

@@ -1,8 +1,5 @@
 package ru.marat.roulette.wheel_of_fortune
 
-import android.R.attr.action
-import android.R.attr.centerX
-import android.R.attr.centerY
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -16,6 +13,8 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
+import androidx.dynamicanimation.animation.DynamicAnimation
+import androidx.dynamicanimation.animation.FlingAnimation
 import androidx.dynamicanimation.animation.FloatValueHolder
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
@@ -71,7 +70,6 @@ class WheelOfFortuneView @JvmOverloads constructor(
             field = value
         }
 
-    private val mRotationDetector: RotationGestureDetector = RotationGestureDetector(this);
 
     private val springForce = SpringForce(166f).apply {
         dampingRatio = SpringForce.DAMPING_RATIO_NO_BOUNCY
@@ -79,13 +77,33 @@ class WheelOfFortuneView @JvmOverloads constructor(
     }
     private val animatedValue = FloatValueHolder(0f)
 
+    private val mRotationDetector: RotationGestureDetector = RotationGestureDetector(animatedValue,this);
     @ColorInt
     private var currentColor = Color.TRANSPARENT
 
     private var spinCount = 0
+
+    private val fling = FlingAnimation(animatedValue).apply {
+        minimumVisibleChange = SpringAnimation.MIN_VISIBLE_CHANGE_ROTATION_DEGREES
+        addUpdateListener { _, value, _ ->
+            spinCount = (value.absoluteValue/360f).toInt()
+            currentColor = if (value > 0)
+                (value - (360f * spinCount)).getColor()
+            else
+                (360f - (value.absoluteValue - (360f * spinCount))).getColor()
+            invalidate()
+        }
+        addEndListener { _, _, _, _ ->
+            spinCount = (animatedValue.value.absoluteValue/360f).toInt()
+            currentColor = if (animatedValue.value > 0)
+                (animatedValue.value - (360f * spinCount)).getColor()
+            else
+                (360f - (animatedValue.value.absoluteValue - (360f * spinCount))).getColor()
+        }
+    }
     private val animation = SpringAnimation(animatedValue).apply {
         spring = springForce
-        minimumVisibleChange = 0.05f
+        minimumVisibleChange = SpringAnimation.MIN_VISIBLE_CHANGE_ROTATION_DEGREES
         addUpdateListener { _, value, _ ->
             currentColor = if (value > 0)
                 (value - (360f * spinCount)).getColor()
@@ -199,6 +217,14 @@ class WheelOfFortuneView @JvmOverloads constructor(
         return true
     }
 
+    override fun onStartRotation() {
+        val currentValue = animatedValue.value
+        animation.cancel()
+        fling.cancel()
+        animatedValue.value = currentValue
+        invalidate()
+    }
+
     override fun onRotation(angleDelta: Float) {
         angleDelta.let {
             animatedValue.value += it
@@ -210,6 +236,14 @@ class WheelOfFortuneView @JvmOverloads constructor(
             Log.e("ANGLE", animatedValue.value.toString())
             invalidate()
         }
+    }
+
+    override fun onFling(velocity: Float) {
+        Log.e("FLING", velocity.toString())
+        fling
+            .setFriction(0.35f)
+            .setStartVelocity(velocity)
+            .start()
     }
 
     fun setFont(typeface: Typeface) = wheel.setFont(typeface)
