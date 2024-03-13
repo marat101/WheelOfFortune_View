@@ -241,7 +241,7 @@ class WheelOfFortuneView @JvmOverloads constructor(
     override fun onFling(velocity: Float) {
         Log.e("FLING", velocity.toString())
         fling
-            .setFriction(0.35f)
+            .setFriction(0.15f)
             .setStartVelocity(velocity)
             .start()
     }
